@@ -51,7 +51,7 @@ fun inbox(
             )
 
             Text(
-                text = "Caixa de entrada",
+                text = "teste",
                 modifier = Modifier.padding(vertical = 10.dp),
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
