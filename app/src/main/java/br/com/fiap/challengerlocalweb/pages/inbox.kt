@@ -1,5 +1,6 @@
 package br.com.fiap.challengerlocalweb.pages
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
@@ -7,5 +8,5 @@ import androidx.navigation.NavController
 fun inbox(
     navController: NavController,
     ) {
-
+Text(text = "Teste")
 }
