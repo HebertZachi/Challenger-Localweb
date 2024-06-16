@@ -11,7 +11,7 @@ data class ReceivedEmailWithRecipient(
     @Embedded val receivedEmail: ReceivedEmail,
     @Relation(
         parentColumn = "id",
-        entityColumn = "received_email_id",
+        entityColumn = "recipient_id",
         associateBy = Junction(ReceivedEmailAndRecipientCrossRef::class)
     )
     val recipients: List<Recipient>

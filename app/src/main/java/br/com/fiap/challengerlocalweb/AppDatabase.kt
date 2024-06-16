@@ -7,7 +7,9 @@ import androidx.room.RoomDatabase
 import br.com.fiap.challengerlocalweb.model.ReceivedEmail
 import br.com.fiap.challengerlocalweb.model.SentEmail
 import androidx.room.TypeConverters
+import br.com.fiap.challengerlocalweb.dao.CCDao
 import br.com.fiap.challengerlocalweb.dao.ReceivedEmailDao
+import br.com.fiap.challengerlocalweb.dao.RecipientDao
 import br.com.fiap.challengerlocalweb.dao.SentEmailDao
 import br.com.fiap.challengerlocalweb.model.CC
 import br.com.fiap.challengerlocalweb.model.ReceivedEmailAndCCCrossRef
@@ -31,6 +33,8 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun receivedEmailDao(): ReceivedEmailDao
     abstract fun sentEmailDao(): SentEmailDao
+    abstract fun recipientDao(): RecipientDao
+    abstract fun ccDao(): CCDao
 
     companion object {
         lateinit var instanceDB: AppDatabase

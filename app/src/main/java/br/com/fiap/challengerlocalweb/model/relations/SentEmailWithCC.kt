@@ -11,7 +11,7 @@ data class SentEmailWithCC(
     @Embedded val sentEmail: SentEmail,
     @Relation(
         parentColumn = "id",
-        entityColumn = "sent_email_id",
+        entityColumn = "cc_id",
         associateBy = Junction(SentEmailAndCCCrossRef::class)
     )
     val ccs: List<CC>
