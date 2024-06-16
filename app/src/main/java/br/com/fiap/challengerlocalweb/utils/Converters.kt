@@ -6,27 +6,33 @@ import java.time.format.DateTimeFormatter
 
 class Converters {
 
-    private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+    companion object {
+        private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
-    @TypeConverter
-    fun fromTimestamp(value: String?): LocalDateTime? {
-        return value?.let {
-            return formatter.parse(value, LocalDateTime::from)
+        @TypeConverter
+        @JvmStatic
+        fun fromTimestamp(value: String?): LocalDateTime? {
+            return value?.let {
+                return formatter.parse(value, LocalDateTime::from)
+            }
         }
-    }
 
-    @TypeConverter
-    fun dateToTimestamp(date: LocalDateTime?): String? {
-        return date?.format(formatter)
-    }
+        @TypeConverter
+        @JvmStatic
+        fun dateToTimestamp(date: LocalDateTime?): String? {
+            return date?.format(formatter)
+        }
 
-    @TypeConverter
-    fun fromStringList(value: String?): List<String>? {
-        return value?.split(",")?.map { it.trim() }
-    }
+        @TypeConverter
+        @JvmStatic
+        fun fromStringList(value: String?): List<String>? {
+            return value?.split(",")?.map { it.trim() }
+        }
 
-    @TypeConverter
-    fun stringListToString(list: List<String>?): String? {
-        return list?.joinToString(",")
+        @TypeConverter
+        @JvmStatic
+        fun stringListToString(list: List<String>?): String? {
+            return list?.joinToString(",")
+        }
     }
 }
