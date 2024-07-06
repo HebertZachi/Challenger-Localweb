@@ -3,8 +3,6 @@ package br.com.fiap.challengerlocalweb.repository
 import android.content.Context
 import br.com.fiap.challengerlocalweb.AppDatabase
 import br.com.fiap.challengerlocalweb.model.ReceivedEmail
-import br.com.fiap.challengerlocalweb.model.relations.ReceivedEmailWithCC
-import br.com.fiap.challengerlocalweb.model.relations.ReceivedEmailWithRecipient
 
 class ReceivedEmailRepository(context: Context) {
 
@@ -28,13 +26,5 @@ class ReceivedEmailRepository(context: Context) {
 
     suspend fun findAll(): List<ReceivedEmail> {
         return db.findAll()
-    }
-
-    suspend fun getReceivedEmailWithCC(id: Long): List<ReceivedEmailWithCC> {
-        return db.getReceivedEmailWithCC(id)
-    }
-
-    suspend fun getReceivedEmailWithRecipient(id: Long): List<ReceivedEmailWithRecipient> {
-        return db.getReceivedEmailWithRecipient(id)
     }
 }

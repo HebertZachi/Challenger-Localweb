@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 data class ReceivedEmail(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @Embedded val baseEmail: Email,
+    val sender: String = "",
     @ColumnInfo(name = "received_date")
     val receivedDate: LocalDateTime = LocalDateTime.now()
 )

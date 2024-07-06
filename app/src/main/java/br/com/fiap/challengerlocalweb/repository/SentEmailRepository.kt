@@ -3,8 +3,6 @@ package br.com.fiap.challengerlocalweb.repository
 import android.content.Context
 import br.com.fiap.challengerlocalweb.AppDatabase
 import br.com.fiap.challengerlocalweb.model.SentEmail
-import br.com.fiap.challengerlocalweb.model.relations.SentEmailWithCC
-import br.com.fiap.challengerlocalweb.model.relations.SentEmailWithRecipient
 
 class SentEmailRepository(context: Context) {
 
@@ -29,12 +27,5 @@ class SentEmailRepository(context: Context) {
     suspend fun findAll(): List<SentEmail> {
         return db.findAll()
     }
-
-    suspend fun getSentEmailWithCC(id: Long): List<SentEmailWithCC> {
-        return db.getSentEmailWithCC(id)
-    }
-
-    suspend fun getSentEmailWithRecipient(id: Long): List<SentEmailWithRecipient> {
-        return db.getSentEmailWithRecipient(id)
-    }
 }
+

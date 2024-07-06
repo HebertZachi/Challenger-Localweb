@@ -2,8 +2,6 @@ package br.com.fiap.challengerlocalweb.dao
 
 import androidx.room.*
 import br.com.fiap.challengerlocalweb.model.SentEmail
-import br.com.fiap.challengerlocalweb.model.relations.SentEmailWithCC
-import br.com.fiap.challengerlocalweb.model.relations.SentEmailWithRecipient
 
 @Dao
 interface SentEmailDao {
@@ -21,12 +19,4 @@ interface SentEmailDao {
 
     @Query("SELECT * FROM sent_emails ORDER BY creation_date ASC")
     suspend fun findAll(): List<SentEmail>
-
-    @Transaction
-    @Query("SELECT * FROM sent_emails WHERE id = :id")
-    suspend fun getSentEmailWithCC(id: Long): List<SentEmailWithCC>
-
-    @Transaction
-    @Query("SELECT * FROM sent_emails WHERE id = :id")
-    suspend fun getSentEmailWithRecipient(id: Long): List<SentEmailWithRecipient>
 }
