@@ -36,6 +36,8 @@ class MainActivity : ComponentActivity() {
                             composable(route = "emailCompose") { emailCompose(navController) }
                             composable(route = "emailViewer") { emailViewer(navController) }
                             composable(route = "calendar") { calendar(navController) }
+
+                        fasdjfkajsdkfajsçldfa
                     }
                 }
             }
