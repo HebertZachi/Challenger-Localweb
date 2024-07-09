@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "br.com.fiap.challengerlocalweb"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "br.com.fiap.challengerlocalweb"

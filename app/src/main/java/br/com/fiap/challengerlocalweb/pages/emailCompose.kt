@@ -62,7 +62,7 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                     icon = { Icon(Icons.Filled.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
                     selected = true,
-                    onClick = { navController.navigate("userProfile") }
+                    onClick = { navController.navigate("profile") }
                 )
             }
         }

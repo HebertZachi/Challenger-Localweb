@@ -77,7 +77,7 @@ fun sentItems(navController: NavController, sentEmailRepository: SentEmailReposi
                     icon = { Icon(Icons.Filled.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
                     selected = false,
-                    onClick = { navController.navigate("userProfile") }
+                    onClick = { navController.navigate("profile") }
                 )
             }
         }
