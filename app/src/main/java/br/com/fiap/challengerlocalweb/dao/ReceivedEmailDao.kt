@@ -20,5 +20,4 @@ interface ReceivedEmailDao {
 
     @Query("SELECT * FROM received_emails ORDER BY received_date ASC")
     suspend fun findAll(): List<ReceivedEmail>
-    fun findAll(`$completion`: Continuation<in List<ReceivedEmail>>): Any
 }
