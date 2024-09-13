@@ -25,7 +25,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import br.com.fiap.challengerlocalweb.AppDatabase
 import br.com.fiap.challengerlocalweb.model.Email
 import br.com.fiap.challengerlocalweb.model.ReceivedEmail
 import br.com.fiap.challengerlocalweb.repository.ReceivedEmailRepository
@@ -81,7 +80,7 @@ fun inbox(navController: NavController, context: Context) {
                     icon = { Icon(Icons.Filled.Send, contentDescription = "Emails Enviados") },
                     label = { Text("Enviados") },
                     selected = false,
-                    onClick = { navController.navigate("sentItems") }
+                    onClick = { navController.navigate("sentEmails") }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.DateRange, contentDescription = "Calendário") },
@@ -156,7 +155,7 @@ fun inbox(navController: NavController, context: Context) {
                     contentPadding = PaddingValues(vertical = 10.dp)
                 ) {
                     items(filteredEmails) { email ->
-                        EmailItem(email)
+                        receivedEmailItem(email, navController)
                         Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
@@ -177,57 +176,6 @@ fun inbox(navController: NavController, context: Context) {
     }
 }
 
-@Composable
-fun EmailItem(email: ReceivedEmail) {
-    Button(
-        onClick = {},
-        modifier = Modifier
-            .fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(Color(0xFF3C4A60)),
-        shape = RoundedCornerShape(10.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = email.baseEmail.subject,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-
-                val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                val formattedDate = email.receivedDate.format(dateFormatter)
-                Text(
-                    text = formattedDate,
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-
-            Text(
-                text = email.baseEmail.body,
-                color = Color.White,
-                fontSize = 14.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .fillMaxWidth()
-            )
-        }
-    }
-}
-
 fun sampleReceivedEmails() = listOf(
     ReceivedEmail(baseEmail = Email(subject = "Lembrete de Reunião", body = "Não esqueça da nossa reunião às 10h amanhã."), sender = "joao.silva@example.com", receivedDate = LocalDateTime.now().minusDays(1)),
     ReceivedEmail(baseEmail = Email(subject = "Atualização de Projeto", body = "As últimas atualizações do projeto estão anexadas."), sender = "ana.santos@example.com", receivedDate = LocalDateTime.now()),
@@ -238,6 +186,5 @@ fun sampleReceivedEmails() = listOf(
     ReceivedEmail(baseEmail = Email(subject = "Atualização de Software", body = "Uma nova atualização de software está disponível para download."), sender = "tech.support@example.com", receivedDate = LocalDateTime.now().minusDays(6)),
     ReceivedEmail(baseEmail = Email(subject = "Promoção de Aniversário", body = "Celebre seu aniversário conosco e ganhe descontos exclusivos."), sender = "promocoes@example.com", receivedDate = LocalDateTime.now().minusDays(7)),
     ReceivedEmail(baseEmail = Email(subject = "Lembrete de Pagamento", body = "Não se esqueça de efetuar o pagamento da fatura até o dia 30/06."), sender = "financeiro@example.com", receivedDate = LocalDateTime.now().minusDays(8)),
-    ReceivedEmail(baseEmail = Email(subject = "Novo Catálogo Disponível", body = "Explore nosso novo catálogo de produtos e aproveite as ofertas especiais."), sender = "marketing@example.com", receivedDate = LocalDateTime.now().minusDays(9))
+    ReceivedEmail(baseEmail = Email(subject = "Novo Catálogo Disponível", body = "Explore nosso novo catálogo de produtos e aproveite as ofertas especiais."), sender = "marketing@example.com", receivedDate = LocalDateTime.now().minusDays(9)),
 )
-

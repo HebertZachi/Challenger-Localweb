@@ -13,7 +13,9 @@ import androidx.navigation.compose.rememberNavController
 import br.com.fiap.challengerlocalweb.pages.calendar
 import br.com.fiap.challengerlocalweb.pages.emailCompose
 import br.com.fiap.challengerlocalweb.pages.inbox
-import br.com.fiap.challengerlocalweb.pages.sentItems
+import br.com.fiap.challengerlocalweb.pages.receivedEmailDetail
+import br.com.fiap.challengerlocalweb.pages.sentEmailDetail
+import br.com.fiap.challengerlocalweb.pages.sentEmails
 import br.com.fiap.challengerlocalweb.ui.theme.ChallengerLocalWebTheme
 import br.com.fiap.challengerlocalweb.repository.SentEmailRepository
 
@@ -35,9 +37,23 @@ class MainActivity : ComponentActivity() {
                         startDestination = "inbox"
                     ) {
                         composable(route = "inbox") { inbox(navController = navController, context = applicationContext) }
-                        composable(route = "sentItems") { sentItems(navController = navController, sentEmailRepository = sentEmailRepository) }
+                        composable(route = "sentEmails") { sentEmails(navController = navController, context = applicationContext) }
                         composable(route = "emailCompose") { emailCompose(navController = navController, sentEmailRepository = sentEmailRepository) }
                         composable(route = "calendar") { calendar(navController = navController) }
+                        composable("receivedEmailDetail/{emailId}") { backStackEntry ->
+                            val emailId = backStackEntry.arguments?.getString("emailId")?.toLongOrNull()
+                            if (emailId != null) {
+                                receivedEmailDetail(navController, emailId, context = applicationContext)
+                            } else {
+                            }
+                        }
+                        composable("sentEmailDetail/{emailId}") { backStackEntry ->
+                            val emailId = backStackEntry.arguments?.getString("emailId")?.toLongOrNull()
+                            if (emailId != null) {
+                                sentEmailDetail(navController, emailId, context = applicationContext)
+                            } else {
+                            }
+                        }
                     }
                 }
             }

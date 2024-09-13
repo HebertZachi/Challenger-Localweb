@@ -50,7 +50,7 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                     icon = { Icon(Icons.Filled.Send, contentDescription = "Emails Enviados") },
                     label = { Text("Enviados") },
                     selected = false,
-                    onClick = { navController.navigate("sentItems") }
+                    onClick = { navController.navigate("sentEmails") }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.DateRange, contentDescription = "Calendário") },
