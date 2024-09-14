@@ -1,18 +1,44 @@
 package br.com.fiap.challengerlocalweb.pages
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.sharp.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
@@ -36,6 +62,13 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
     var body by remember { mutableStateOf(TextFieldValue("")) }
     val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
+    var attachmentUri by remember { mutableStateOf<Uri?>(null) }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        attachmentUri = uri
+    }
 
     Scaffold(
         bottomBar = {
@@ -95,6 +128,13 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 10.dp),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Email,
+                            contentDescription = "Icone para destinatário",
+                            tint = Color.White
+                        )
+                    },
                     shape = RoundedCornerShape(8.dp),
                     textStyle = TextStyle(color = Color.White),
                     label = { Text("Para", color = Color.White) },
@@ -114,6 +154,13 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 10.dp),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = "Icone para Cc",
+                            tint = Color.White
+                        )
+                    },
                     shape = RoundedCornerShape(8.dp),
                     textStyle = TextStyle(color = Color.White),
                     label = { Text("Cc", color = Color.White) },
@@ -133,6 +180,13 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 10.dp),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.MailOutline,
+                            contentDescription = "Icone para Assunto",
+                            tint = Color.White
+                        )
+                    },
                     shape = RoundedCornerShape(8.dp),
                     textStyle = TextStyle(color = Color.White),
                     label = { Text("Assunto", color = Color.White) },
@@ -145,7 +199,39 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         }
                     )
                 )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp)
+                ) {
+                    IconButton(
+                        onClick = {
+                            launcher.launch("application/*")
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Sharp.Add,
+                            contentDescription = "Anexar Arquivo",
+                            tint = Color.White
+                        )
+                    }
 
+                    Text(
+                        text = "Anexar Arquivo",
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+                    attachmentUri?.let { uri ->
+                        Text(
+                            text = "Anexo: ${uri.lastPathSegment}",
+                            color = Color.White,
+                            fontSize = 16.sp
+                        )
+                    }
+                }
                 OutlinedTextField(
                     value = body,
                     onValueChange = { body = it },
@@ -155,7 +241,7 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         .padding(vertical = 10.dp),
                     shape = RoundedCornerShape(8.dp),
                     textStyle = TextStyle(color = Color.White),
-                    label = { Text("Corpo do e-mail", color = Color.White) },
+                    label = { Text("Mensagem", color = Color.White) },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
@@ -166,6 +252,8 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                     ),
                     maxLines = 5
                 )
+
+
 
                 Button(
                     onClick = {

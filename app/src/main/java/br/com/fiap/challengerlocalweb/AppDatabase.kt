@@ -13,7 +13,7 @@ import br.com.fiap.challengerlocalweb.utils.Converters
 
 @Database(entities = [
     ReceivedEmail::class,
-    SentEmail::class], version = 1)
+    SentEmail::class], version = 2)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 

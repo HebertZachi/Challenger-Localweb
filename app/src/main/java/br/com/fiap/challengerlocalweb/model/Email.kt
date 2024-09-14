@@ -4,4 +4,5 @@ data class Email(
     val cc: String = "",
     val subject: String = "",
     val body: String = "",
+    val anexo: String = "",
 )
