@@ -1,6 +1,7 @@
 package br.com.fiap.challengerlocalweb.pages
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,10 +25,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import br.com.fiap.challengerlocalweb.model.SentEmail
-import br.com.fiap.challengerlocalweb.repository.ReceivedEmailRepository
+import br.com.fiap.challengerlocalweb.relations.SentEmailWithUsers
 import br.com.fiap.challengerlocalweb.repository.SentEmailRepository
-import kotlinx.coroutines.launch
 
 @Composable
 fun sentEmails(navController: NavController, context: Context) {
@@ -37,11 +36,13 @@ fun sentEmails(navController: NavController, context: Context) {
 
     val sentEmailRepository = SentEmailRepository(context)
     val coroutineScope = rememberCoroutineScope()
-    var emails by remember { mutableStateOf(listOf<SentEmail>()) }
+    var emails by remember { mutableStateOf(listOf<SentEmailWithUsers>()) }
 
     LaunchedEffect(Unit) {
-        emails = sentEmailRepository.findAll()
+        emails = sentEmailRepository.getAllSentEmails()
     }
+
+    Log.d("TESTE", emails.toString())
 
 //    LaunchedEffect(Unit) {
 //        coroutineScope.launch {
@@ -58,11 +59,30 @@ fun sentEmails(navController: NavController, context: Context) {
 //        }
 //    }
 
+//    LaunchedEffect(Unit) {
+//        coroutineScope.launch {
+//            val existingEmails = sentEmailRepository.getAllSentEmails()
+//            if (existingEmails.isEmpty()) {
+//                val sampleEmails = sampleReceivedEmails()
+//
+//                sampleEmails.forEach { (email, recipients) ->
+//                    val receivers = recipients["receivers"] ?: emptyList()
+//                    val cc = recipients["cc"] ?: emptyList()
+//                    sentEmailRepository.insertSentEmail(email, receivers, cc)
+//                }
+//
+//                emails = sentEmailRepository.getAllSentEmails()
+//            } else {
+//                emails = existingEmails
+//            }
+//        }
+//    }
+
     val filteredEmails = emails.filter { email ->
         if (searchActive) {
-            email.baseEmail.subject.contains(searchQuery, ignoreCase = true) ||
-                    email.baseEmail.body.contains(searchQuery, ignoreCase = true) ||
-                    email.recipient.contains(searchQuery, ignoreCase = true)
+            email.sentEmail.subject.contains(searchQuery, ignoreCase = true) ||
+                    email.sentEmail.body.contains(searchQuery, ignoreCase = true) ||
+                    email.receivers.any { receiver -> receiver.userEmailId.contains(searchQuery, ignoreCase = true) }
         } else {
             true
         }

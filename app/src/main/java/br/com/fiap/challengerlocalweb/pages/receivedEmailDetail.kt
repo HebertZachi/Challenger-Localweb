@@ -16,21 +16,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import br.com.fiap.challengerlocalweb.model.ReceivedEmail
+import br.com.fiap.challengerlocalweb.relations.ReceivedEmailWithUsers
 import br.com.fiap.challengerlocalweb.repository.ReceivedEmailRepository
 import kotlinx.coroutines.launch
 
 @Composable
-fun receivedEmailDetail(navController: NavController, emailId: Long?, context: Context) {
+fun receivedEmailDetail(navController: NavController, emailId: String?, context: Context) {
     val receivedEmailRepository = remember { ReceivedEmailRepository(context) }
-    var email by remember { mutableStateOf<ReceivedEmail?>(null) }
+    var email by remember { mutableStateOf<ReceivedEmailWithUsers?>(null) }
     val coroutineScope = rememberCoroutineScope()
     var isSenderExpanded by remember { mutableStateOf(false) }
     var isCcExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(emailId) {
         coroutineScope.launch {
-            email = emailId?.let { receivedEmailRepository.findById(it) }
+            email = emailId?.let { receivedEmailRepository.getEmailById(it) }
         }
     }
 
@@ -94,7 +94,7 @@ fun receivedEmailDetail(navController: NavController, emailId: Long?, context: C
                         .verticalScroll(rememberScrollState())
                 ) {
                     Text(
-                        text = "${email.baseEmail.subject}",
+                        text = "${email.receivedEmail.subject}",
                         fontSize = 24.sp,
                         color = Color.White
                     )
@@ -109,13 +109,13 @@ fun receivedEmailDetail(navController: NavController, emailId: Long?, context: C
                             .padding(12.dp)
                     ) {
                         Text(
-                            text = "De: ${email.sender}",
+                            text = "De: ${email.receivedEmail.senderEmail}",
                             fontSize = 16.sp,
                             color = Color.White
                         )
                         if (isSenderExpanded) {
                             Text(
-                                text = "${email.sender}",
+                                text = "${email.receivedEmail.senderEmail}",
                                 fontSize = 14.sp,
                                 color = Color.LightGray
                             )
@@ -131,13 +131,13 @@ fun receivedEmailDetail(navController: NavController, emailId: Long?, context: C
                             .padding(12.dp)
                     ) {
                         Text(
-                            text = "CC: ${email.baseEmail.cc?.takeIf { it.isNotEmpty() } ?: "Nenhum"}",
+                            text = "CC: ${email.cc?.takeIf { it.isNotEmpty() } ?: "Nenhum"}",
                             fontSize = 16.sp,
                             color = Color.White
                         )
-                        if (isCcExpanded && email.baseEmail.cc?.isNotEmpty() == true) {
+                        if (isCcExpanded && email.cc?.isNotEmpty() == true) {
                             Text(
-                                text = "Destinatários CC completos: ${email.baseEmail.cc}",
+                                text = "Destinatários CC completos: ${email.cc}",
                                 fontSize = 14.sp,
                                 color = Color.LightGray
                             )
@@ -156,7 +156,7 @@ fun receivedEmailDetail(navController: NavController, emailId: Long?, context: C
                             .padding(12.dp)
                     ) {
                         Text(
-                            text = email.baseEmail.body,
+                            text = email.receivedEmail.body,
                             fontSize = 16.sp,
                             color = Color.White
                         )
