@@ -7,5 +7,5 @@ import java.time.LocalDateTime
 @Entity(tableName = "users")
 data class User(
     @PrimaryKey val userEmailId: String,
-    val name: String,
+    val name: String?,
 )

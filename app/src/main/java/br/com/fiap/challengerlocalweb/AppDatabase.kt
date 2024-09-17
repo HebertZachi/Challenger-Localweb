@@ -25,7 +25,7 @@ import br.com.fiap.challengerlocalweb.utils.Converters
     ReceivedEmailReceiverCrossRef::class,
     SentEmailCcCrossRef::class,
     SentEmailReceiverCrossRef::class
-], version = 4)
+], version = 5)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 

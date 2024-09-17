@@ -1,10 +1,6 @@
 package br.com.fiap.challengerlocalweb.pages
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -13,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,7 +36,6 @@ fun sentEmailItem(email: SentEmailWithUsers, navController: NavController) {
                 Text(
                     text = email.sentEmail.subject,
                     color = Color.White,
-                    fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -58,8 +52,13 @@ fun sentEmailItem(email: SentEmailWithUsers, navController: NavController) {
                 )
             }
 
+            val receivers = email.receivers
+            val displayedEmails = receivers.take(2).joinToString(separator = ", ") { it.userEmailId }
+            val moreEmailsCount = receivers.size - 2
+            val showMoreText = if (moreEmailsCount > 0) "+$moreEmailsCount mais" else ""
+
             Text(
-                text = "Para: ${email.receivers}",
+                text = "Para: $displayedEmails $showMoreText",
                 color = Color.White,
                 fontSize = 14.sp,
                 maxLines = 1,

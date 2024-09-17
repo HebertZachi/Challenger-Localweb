@@ -1,7 +1,6 @@
 package br.com.fiap.challengerlocalweb.pages
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -41,8 +40,6 @@ fun sentEmails(navController: NavController, context: Context) {
     LaunchedEffect(Unit) {
         emails = sentEmailRepository.getAllSentEmails()
     }
-
-    Log.d("TESTE", emails.toString())
 
 //    LaunchedEffect(Unit) {
 //        coroutineScope.launch {

@@ -112,7 +112,7 @@ fun sentEmailDetail(navController: NavController, emailId: String?, context: Con
                     ) {
                         if (receivers.isNotEmpty()) {
                             Text(
-                                text = "Para: ${receivers.first()}",
+                                text = "Para: ${receivers.first().userEmailId}",
                                 fontSize = 16.sp,
                                 color = Color.White
                             )
@@ -147,7 +147,7 @@ fun sentEmailDetail(navController: NavController, emailId: String?, context: Con
                     ) {
                         if (ccList.isNotEmpty()) {
                             Text(
-                                text = "Cc: ${ccList.first()}",
+                                text = "Cc: ${ccList.first().userEmailId}",
                                 fontSize = 16.sp,
                                 color = Color.White
                             )
