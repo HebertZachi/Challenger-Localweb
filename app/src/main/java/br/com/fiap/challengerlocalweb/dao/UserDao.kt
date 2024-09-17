@@ -17,5 +17,11 @@ interface UserDao {
 
     @Query("SELECT * FROM users WHERE userEmailId = :email")
     suspend fun getUserByEmail(email: String): User?
+
+    @Query("SELECT COUNT(*) FROM users WHERE userEmailId = :userEmailId")
+    suspend fun userExists(userEmailId: String): Int
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertUser(user: User)
 }
 
