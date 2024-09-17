@@ -1,5 +1,6 @@
 package br.com.fiap.challengerlocalweb.pages
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,27 +21,42 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import br.com.fiap.challengerlocalweb.model.SentEmail
+import br.com.fiap.challengerlocalweb.repository.ReceivedEmailRepository
 import br.com.fiap.challengerlocalweb.repository.SentEmailRepository
 import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
 
 @Composable
-fun sentItems(navController: NavController, sentEmailRepository: SentEmailRepository) {
+fun sentEmails(navController: NavController, context: Context) {
     var searchQuery by remember { mutableStateOf("") }
     var searchActive by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
+    val sentEmailRepository = SentEmailRepository(context)
     val coroutineScope = rememberCoroutineScope()
     var emails by remember { mutableStateOf(listOf<SentEmail>()) }
 
     LaunchedEffect(Unit) {
         emails = sentEmailRepository.findAll()
     }
+
+//    LaunchedEffect(Unit) {
+//        coroutineScope.launch {
+//            val existingEmails = sentEmailRepository.findAll()
+//            if (existingEmails.isEmpty()) {
+//                val sampleEmails = sampleReceivedEmails()
+//                sampleEmails.forEach { email ->
+//                    sentEmailRepository.save(email)
+//                }
+//                emails = sentEmailRepository.findAll()
+//            } else {
+//                emails = existingEmails
+//            }
+//        }
+//    }
 
     val filteredEmails = emails.filter { email ->
         if (searchActive) {
@@ -65,7 +81,7 @@ fun sentItems(navController: NavController, sentEmailRepository: SentEmailReposi
                     icon = { Icon(Icons.Filled.Send, contentDescription = "Emails Enviados") },
                     label = { Text("Enviados") },
                     selected = true,
-                    onClick = { navController.navigate("sentItems") }
+                    onClick = { navController.navigate("sentEmails") }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.DateRange, contentDescription = "Calendário") },
@@ -129,7 +145,7 @@ fun sentItems(navController: NavController, sentEmailRepository: SentEmailReposi
                     text = "Itens Enviados",
                     modifier = Modifier
                         .padding(vertical = 10.dp)
-                        .align(Alignment.Start), // Alinhamento à esquerda
+                        .align(Alignment.Start),
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                     fontSize = 22.sp,
@@ -140,7 +156,7 @@ fun sentItems(navController: NavController, sentEmailRepository: SentEmailReposi
                     contentPadding = PaddingValues(vertical = 10.dp)
                 ) {
                     items(filteredEmails) { email ->
-                        SentEmailItem(email)
+                        sentEmailItem(email, navController)
                         Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
@@ -157,68 +173,6 @@ fun sentItems(navController: NavController, sentEmailRepository: SentEmailReposi
                     contentDescription = "Criar novo e-mail"
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun SentEmailItem(email: SentEmail) {
-    Button(
-        onClick = { /* Navegar para a tela de detalhes do e-mail */ },
-        modifier = Modifier
-            .fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(Color(0xFF3C4A60)),
-        shape = RoundedCornerShape(10.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = email.baseEmail.subject,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-
-                val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                val formattedDate = email.creationDate.format(dateFormatter)
-                Text(
-                    text = formattedDate,
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-
-            Text(
-                text = "Para: ${email.recipient}",
-                color = Color.White,
-                fontSize = 14.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(top = 4.dp)
-                    .fillMaxWidth()
-            )
-
-            Text(
-                text = email.baseEmail.body,
-                color = Color.White,
-                fontSize = 14.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .fillMaxWidth()
-            )
         }
     }
 }
