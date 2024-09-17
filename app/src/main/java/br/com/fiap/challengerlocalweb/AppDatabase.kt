@@ -7,18 +7,22 @@ import androidx.room.RoomDatabase
 import br.com.fiap.challengerlocalweb.model.ReceivedEmail
 import br.com.fiap.challengerlocalweb.model.SentEmail
 import androidx.room.TypeConverters
+import br.com.fiap.challengerlocalweb.dao.EventDao
 import br.com.fiap.challengerlocalweb.dao.ReceivedEmailDao
 import br.com.fiap.challengerlocalweb.dao.SentEmailDao
+import br.com.fiap.challengerlocalweb.model.Event
 import br.com.fiap.challengerlocalweb.utils.Converters
 
 @Database(entities = [
     ReceivedEmail::class,
-    SentEmail::class], version = 1)
+    SentEmail::class,
+    Event::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun receivedEmailDao(): ReceivedEmailDao
     abstract fun sentEmailDao(): SentEmailDao
+    abstract fun eventDao(): EventDao
 
     companion object {
         lateinit var instanceDB: AppDatabase
