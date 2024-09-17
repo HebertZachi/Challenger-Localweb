@@ -18,14 +18,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import br.com.fiap.challengerlocalweb.model.ReceivedEmail
-import br.com.fiap.challengerlocalweb.model.SentEmail
+import br.com.fiap.challengerlocalweb.relations.SentEmailWithUsers
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun sentEmailItem(email: SentEmail, navController: NavController) {
+fun sentEmailItem(email: SentEmailWithUsers, navController: NavController) {
     Button(
-        onClick = { navController.navigate("sentEmailDetail/${email.id}") },
+        onClick = { navController.navigate("sentEmailDetail/${email.sentEmail.sentEmailId}") },
         modifier = Modifier
             .fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(Color(0xFF3C4A60)),
@@ -40,7 +39,7 @@ fun sentEmailItem(email: SentEmail, navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = email.baseEmail.subject,
+                    text = email.sentEmail.subject,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
@@ -50,7 +49,7 @@ fun sentEmailItem(email: SentEmail, navController: NavController) {
                 )
 
                 val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                val formattedDate = email.creationDate.format(dateFormatter)
+                val formattedDate = email.sentEmail.createdAt.format(dateFormatter)
                 Text(
                     text = formattedDate,
                     color = Color.White,
@@ -60,7 +59,7 @@ fun sentEmailItem(email: SentEmail, navController: NavController) {
             }
 
             Text(
-                text = "Para: ${email.recipient}",
+                text = "Para: ${email.receivers}",
                 color = Color.White,
                 fontSize = 14.sp,
                 maxLines = 1,
@@ -71,7 +70,7 @@ fun sentEmailItem(email: SentEmail, navController: NavController) {
             )
 
             Text(
-                text = email.baseEmail.body,
+                text = email.sentEmail.body,
                 color = Color.White,
                 fontSize = 14.sp,
                 maxLines = 1,

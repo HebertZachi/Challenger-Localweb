@@ -1,3 +1,5 @@
+package br.com.fiap.challengerlocalweb.pages
+
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -65,7 +67,7 @@ fun calendar(navController: NavController, context: Context) {
                     icon = { Icon(Icons.Filled.Send, contentDescription = "Emails Enviados") },
                     label = { Text("Enviados") },
                     selected = false,
-                    onClick = { navController.navigate("sentItems") }
+                    onClick = { navController.navigate("sentEmails") }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.DateRange, contentDescription = "Calendário") },
@@ -89,14 +91,12 @@ fun calendar(navController: NavController, context: Context) {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Exibe o mês e o ano
             Text(
                 text = "${currentMonth.month.getDisplayName(TextStyle.FULL, Locale("pt", "BR"))} ${currentMonth.year}",
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(8.dp)
             )
 
-            // Navegação entre os meses
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -111,7 +111,6 @@ fun calendar(navController: NavController, context: Context) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Dias da semana
             Row(modifier = Modifier.fillMaxWidth()) {
                 val daysOfWeek = listOf("Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb")
                 for (day in daysOfWeek) {
@@ -126,7 +125,6 @@ fun calendar(navController: NavController, context: Context) {
                 }
             }
 
-            // Exibição do calendário
             LazyColumn {
                 items(getWeeksOfMonth(currentMonth)) { week ->
                     Row(modifier = Modifier.fillMaxWidth()) {
@@ -165,7 +163,6 @@ fun calendar(navController: NavController, context: Context) {
             }
         }
 
-        // Modal exibindo compromisso ao clicar no dia atual
         if (showMeetingDialog) {
             AlertDialog(
                 onDismissRequest = { showMeetingDialog = false },

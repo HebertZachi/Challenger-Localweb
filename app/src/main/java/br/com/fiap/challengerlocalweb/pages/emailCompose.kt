@@ -48,7 +48,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import br.com.fiap.challengerlocalweb.model.Email
 import br.com.fiap.challengerlocalweb.model.SentEmail
 import br.com.fiap.challengerlocalweb.repository.SentEmailRepository
 import kotlinx.coroutines.launch
@@ -253,25 +252,24 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                     maxLines = 5
                 )
 
-
-
                 Button(
                     onClick = {
                         val newEmail = SentEmail(
-                            baseEmail = Email(
-                                cc = cc.text,
-                                subject = subject.text,
-                                body = body.text
-                            ),
-                            recipient = recipient.text,
-                            creationDate = LocalDateTime.now()
+                            sentEmailId = java.util.UUID.randomUUID().toString(),
+                            subject = subject.text,
+                            senderEmail = "seuemail@dominio.com",
+                            body = body.text,
+                            createdAt = LocalDateTime.now()
                         )
 
+                        val recipientsList = recipient.text.split(";").map { it.trim() }
+                        val ccList = cc.text.split(";").map { it.trim() }
+
                         coroutineScope.launch {
-                            sentEmailRepository.save(newEmail)
+                            sentEmailRepository.insertSentEmail(newEmail, recipientsList, ccList)
                         }
 
-                        navController.navigate("inbox")
+                        navController.navigate("sentEmails")
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -283,4 +281,5 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
         }
     }
 }
+
 

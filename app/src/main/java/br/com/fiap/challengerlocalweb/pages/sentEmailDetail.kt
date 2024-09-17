@@ -16,22 +16,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import br.com.fiap.challengerlocalweb.model.SentEmail
+import br.com.fiap.challengerlocalweb.relations.SentEmailWithUsers
 import br.com.fiap.challengerlocalweb.repository.SentEmailRepository
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun sentEmailDetail(navController: NavController, emailId: Long?, context: Context) {
+fun sentEmailDetail(navController: NavController, emailId: String?, context: Context) {
     val sentEmailRepository = remember { SentEmailRepository(context) }
-    var email by remember { mutableStateOf<SentEmail?>(null) }
+    var email by remember { mutableStateOf<SentEmailWithUsers?>(null) }
     val coroutineScope = rememberCoroutineScope()
     var isRecipientExpanded by remember { mutableStateOf(false) }
     var isCcExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(emailId) {
         coroutineScope.launch {
-            email = emailId?.let { sentEmailRepository.findById(it) }
+            email = emailId?.let { sentEmailRepository.getSentEmailById(it) }
         }
     }
 
@@ -95,13 +95,14 @@ fun sentEmailDetail(navController: NavController, emailId: Long?, context: Conte
                         .verticalScroll(rememberScrollState())
                 ) {
                     Text(
-                        text = "${email.baseEmail.subject}",
+                        text = "${email.sentEmail.subject}",
                         fontSize = 24.sp,
                         color = Color.White
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
 
+                    val receivers = email.receivers
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -109,22 +110,34 @@ fun sentEmailDetail(navController: NavController, emailId: Long?, context: Conte
                             .background(Color(0xFF3C4A60), RoundedCornerShape(10.dp))
                             .padding(12.dp)
                     ) {
-                        Text(
-                            text = "Para: ${email.recipient}",
-                            fontSize = 16.sp,
-                            color = Color.White
-                        )
-                        if (isRecipientExpanded) {
+                        if (receivers.isNotEmpty()) {
                             Text(
-                                text = email.recipient,
-                                fontSize = 14.sp,
-                                color = Color.LightGray
+                                text = "Para: ${receivers.first()}",
+                                fontSize = 16.sp,
+                                color = Color.White
                             )
+                            if (receivers.size > 1) {
+                                Text(
+                                    text = "+${receivers.size - 1} mais",
+                                    fontSize = 14.sp,
+                                    color = Color.LightGray
+                                )
+                            }
+                            if (isRecipientExpanded) {
+                                receivers.drop(1).forEach { receiver ->
+                                    Text(
+                                        text = receiver.userEmailId,
+                                        fontSize = 14.sp,
+                                        color = Color.LightGray
+                                    )
+                                }
+                            }
                         }
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
 
+                    val ccList = email.cc
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -132,24 +145,35 @@ fun sentEmailDetail(navController: NavController, emailId: Long?, context: Conte
                             .background(Color(0xFF3C4A60), RoundedCornerShape(10.dp))
                             .padding(12.dp)
                     ) {
-                        Text(
-                            text = "Cc: ${email.baseEmail.cc}",
-                            fontSize = 16.sp,
-                            color = Color.White
-                        )
-                        if (isCcExpanded) {
+                        if (ccList.isNotEmpty()) {
                             Text(
-                                text = email.baseEmail.cc,
-                                fontSize = 14.sp,
-                                color = Color.LightGray
+                                text = "Cc: ${ccList.first()}",
+                                fontSize = 16.sp,
+                                color = Color.White
                             )
+                            if (ccList.size > 1) {
+                                Text(
+                                    text = "+${ccList.size - 1} mais",
+                                    fontSize = 14.sp,
+                                    color = Color.LightGray
+                                )
+                            }
+                            if (isCcExpanded) {
+                                ccList.drop(1).forEach { cc ->
+                                    Text(
+                                        text = cc.userEmailId,
+                                        fontSize = 14.sp,
+                                        color = Color.LightGray
+                                    )
+                                }
+                            }
                         }
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = email.baseEmail.body,
+                        text = email.sentEmail.body,
                         fontSize = 16.sp,
                         color = Color.White
                     )
@@ -157,7 +181,7 @@ fun sentEmailDetail(navController: NavController, emailId: Long?, context: Conte
                     Spacer(modifier = Modifier.height(20.dp))
 
                     val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-                    val formattedDate = email.creationDate.format(dateFormatter)
+                    val formattedDate = email.sentEmail.createdAt.format(dateFormatter)
                     Text(
                         text = "Enviado em: $formattedDate",
                         fontSize = 12.sp,

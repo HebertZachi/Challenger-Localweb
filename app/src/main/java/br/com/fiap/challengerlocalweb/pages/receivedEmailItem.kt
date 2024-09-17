@@ -18,13 +18,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import br.com.fiap.challengerlocalweb.model.ReceivedEmail
+import br.com.fiap.challengerlocalweb.relations.ReceivedEmailWithUsers
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun receivedEmailItem(email: ReceivedEmail, navController: NavController) {
+fun receivedEmailItem(email: ReceivedEmailWithUsers, navController: NavController) {
     Button(
-        onClick = { navController.navigate("receivedEmailDetail/${email.id}") },
+        onClick = { navController.navigate("receivedEmailDetail/${email.receivedEmail.receivedEmailId}") },
         modifier = Modifier
             .fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(Color(0xFF3C4A60)),
@@ -39,7 +39,7 @@ fun receivedEmailItem(email: ReceivedEmail, navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = email.baseEmail.subject,
+                    text = email.receivedEmail.subject,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
@@ -49,7 +49,7 @@ fun receivedEmailItem(email: ReceivedEmail, navController: NavController) {
                 )
 
                 val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                val formattedDate = email.receivedDate.format(dateFormatter)
+                val formattedDate = email.receivedEmail.createdAt.format(dateFormatter)
                 Text(
                     text = formattedDate,
                     color = Color.White,
@@ -59,7 +59,7 @@ fun receivedEmailItem(email: ReceivedEmail, navController: NavController) {
             }
 
             Text(
-                text = email.baseEmail.body,
+                text = email.receivedEmail.body,
                 color = Color.White,
                 fontSize = 14.sp,
                 maxLines = 1,
