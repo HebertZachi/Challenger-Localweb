@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -98,7 +99,7 @@ fun sentEmails(navController: NavController, context: Context) {
                     icon = { Icon(Icons.Filled.Send, contentDescription = "Emails Enviados") },
                     label = { Text("Enviados") },
                     selected = true,
-                    onClick = { navController.navigate("sentEmails") }
+                    onClick = { navController.navigate("sentItems") }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.DateRange, contentDescription = "Calendário") },
@@ -110,14 +111,14 @@ fun sentEmails(navController: NavController, context: Context) {
                     icon = { Icon(Icons.Filled.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
                     selected = false,
-                    onClick = { navController.navigate("profile") }
+                    onClick = { navController.navigate("userProfile") }
                 )
             }
         }
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .background(Color(0xFF253645))
+                .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
                 .padding(innerPadding)
                 .clickable {
@@ -139,11 +140,11 @@ fun sentEmails(navController: NavController, context: Context) {
                             searchActive = focusState.isFocused
                         },
                     shape = RoundedCornerShape(50.dp),
-                    textStyle = TextStyle(color = Color.White),
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
                     label = {
                         Text(
                             text = "Search",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.padding(horizontal = 10.dp)
                         )
                     },
@@ -164,7 +165,7 @@ fun sentEmails(navController: NavController, context: Context) {
                         .padding(vertical = 10.dp)
                         .align(Alignment.Start),
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 22.sp,
                 )
 

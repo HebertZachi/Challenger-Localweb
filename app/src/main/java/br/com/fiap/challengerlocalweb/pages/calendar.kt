@@ -67,7 +67,7 @@ fun calendar(navController: NavController, context: Context) {
                     icon = { Icon(Icons.Filled.Send, contentDescription = "Emails Enviados") },
                     label = { Text("Enviados") },
                     selected = false,
-                    onClick = { navController.navigate("sentEmails") }
+                    onClick = { navController.navigate("sentItems") }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.DateRange, contentDescription = "Calendário") },
@@ -79,7 +79,7 @@ fun calendar(navController: NavController, context: Context) {
                     icon = { Icon(Icons.Filled.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
                     selected = false,
-                    onClick = { navController.navigate("profile") }
+                    onClick = { navController.navigate("userProfile") }
                 )
             }
         }

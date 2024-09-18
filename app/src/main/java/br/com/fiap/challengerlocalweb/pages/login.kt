@@ -4,7 +4,6 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -14,14 +13,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.*
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import br.com.fiap.challengerlocalweb.R
+import br.com.fiap.challengerlocalweb.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,36 +38,17 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun signup(navController: NavController) {
-    var userName by remember { mutableStateOf("") }
-    var userEmail by remember { mutableStateOf("") }
-    var userPassword by remember { mutableStateOf("") }
+fun login(navController: NavController, context: Context) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var isEmailValid by remember { mutableStateOf(true) }
-    var isPasswordValid by remember { mutableStateOf(true) }
-    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val focusManager = LocalFocusManager.current
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val logoSize = (screenWidth.coerceAtMost(screenHeight) * 0.5f)
-
-    fun validateEmail(email: String): Boolean {
-        val emailPattern = android.util.Patterns.EMAIL_ADDRESS
-        return emailPattern.matcher(email).matches()
-    }
-
-    fun validatePassword(password: String): Boolean {
-        return password.length > 8
-    }
 
     Scaffold { innerPadding ->
         Box(
@@ -69,9 +56,6 @@ fun signup(navController: NavController) {
                 .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
                 .padding(innerPadding)
-                .clickable {
-                    focusManager.clearFocus()
-                }
         ) {
             Column(
                 modifier = Modifier
@@ -86,23 +70,23 @@ fun signup(navController: NavController) {
                     modifier = Modifier.size(logoSize)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(5.dp))
 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 5.dp)
                 ) {
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                                append("Cadastro de")
+                                append("Lo")
                             }
                             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
-                                append(" Usuário")
+                                append("gin")
                             }
                         },
-                        fontSize = 20.sp,
+                        fontSize = 50.sp,
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
                             .align(Alignment.Center),
@@ -113,58 +97,27 @@ fun signup(navController: NavController) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
-                    value = userName,
-                    onValueChange = { userName = it },
-                    label = { Text("Nome", color = MaterialTheme.colorScheme.onBackground) },
-                    textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = userEmail,
-                    onValueChange = {
-                        userEmail = it
-                        isEmailValid = validateEmail(it)
-                    },
+                    value = email,
+                    onValueChange = { email = it },
                     label = { Text("E-mail", color = MaterialTheme.colorScheme.onBackground) },
-                    isError = !isEmailValid,
-                    textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next
                     ),
                     modifier = Modifier.fillMaxWidth(),
+                    textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
-                if (!isEmailValid) {
-                    Text(
-                        text = "Por favor, insira um e-mail válido.",
-                        color = MaterialTheme.colorScheme.error,
-                        style = LocalTextStyle.current.copy(fontSize = 12.sp),
-                        modifier = Modifier.align(Alignment.Start)
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
-                    value = userPassword,
-                    onValueChange = {
-                        userPassword = it
-                        isPasswordValid = validatePassword(it)
-                    },
+                    value = password,
+                    onValueChange = { password = it },
                     label = { Text("Senha", color = MaterialTheme.colorScheme.onBackground) },
-                    isError = !isPasswordValid,
-                    textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
@@ -177,70 +130,63 @@ fun signup(navController: NavController) {
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
+                    textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
-                if (!isPasswordValid) {
-                    Text(
-                        text = "A senha deve ter mais de 8 caracteres.",
-                        color = MaterialTheme.colorScheme.error,
-                        style = LocalTextStyle.current.copy(fontSize = 12.sp),
-                        modifier = Modifier.align(Alignment.Start)
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
                     onClick = {
-                        if (isEmailValid && isPasswordValid) {
-                            coroutineScope.launch {
-                                registerUser(context, userName, userEmail, userPassword) { success, errorMessage ->
-                                    if (success) {
-                                        navController.navigate("login")
-                                    } else {
-                                        Toast.makeText(context, "Erro ao cadastrar usuário: $errorMessage", Toast.LENGTH_LONG).show()
+                        coroutineScope.launch {
+                            loginUser(context, email, password) { success, errorMessage ->
+                                if (success) {
+                                    coroutineScope.launch {
+                                        fetchUserProfile(context) { profileSuccess, profileError ->
+                                            if (profileSuccess) {
+                                                navController.navigate("inbox")
+                                            } else {
+                                                Toast.makeText(context, "Erro ao buscar perfil: $profileError", Toast.LENGTH_LONG).show()
+                                            }
+                                        }
                                     }
+                                } else {
+                                    Toast.makeText(context, "Erro ao fazer login: $errorMessage", Toast.LENGTH_LONG).show()
                                 }
                             }
-                        } else {
-                            Toast.makeText(context, "Corrija os erros antes de continuar.", Toast.LENGTH_LONG).show()
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "Cadastrar", color = MaterialTheme.colorScheme.onPrimary)
+                    Text(text = "Login")
                 }
+
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Button(
-                    onClick = { navController.popBackStack() },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
+                TextButton(
+                    onClick = { navController.navigate("Signup") }
                 ) {
-                    Text(text = "Cancelar", color = MaterialTheme.colorScheme.onSecondary)
+                    Text("Não tem uma conta? Cadastre-se", color = MaterialTheme.colorScheme.onBackground)
                 }
             }
         }
     }
 }
 
-suspend fun registerUser(
+suspend fun loginUser(
     context: Context,
-    name: String,
     email: String,
     password: String,
     onResult: (Boolean, String?) -> Unit
 ) {
-    val url = "http://10.0.2.2:8080/auth/register"
+    val url = "http://10.0.2.2:8080/auth/login"
     val client = OkHttpClient()
 
     val json = JSONObject().apply {
-        put("name", name)
         put("email", email)
         put("password", password)
     }
@@ -254,14 +200,83 @@ suspend fun registerUser(
     withContext(Dispatchers.IO) {
         try {
             val response = client.newCall(request).execute()
-            if (response.isSuccessful) {
+            val responseBody = response.body?.string()
+
+            if (response.isSuccessful && responseBody != null) {
+                val responseJson = JSONObject(responseBody)
+
+                val userId = responseJson.getString("userId")
+                val token = responseJson.getString("token")
+
+                SessionManager.getInstance().saveUserId(userId)
+                SessionManager.getInstance().saveAuthToken(token)
+
                 withContext(Dispatchers.Main) {
                     onResult(true, null)
                 }
             } else {
-                val errorMessage = response.body?.string() ?: "Erro desconhecido"
                 withContext(Dispatchers.Main) {
-                    onResult(false, errorMessage)
+                    onResult(false, "Erro: ${response.message}")
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            withContext(Dispatchers.Main) {
+                onResult(false, e.message)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            withContext(Dispatchers.Main) {
+                onResult(false, e.message)
+            }
+        }
+    }
+}
+
+suspend fun fetchUserProfile(
+    context: Context,
+    onResult: (Boolean, String?) -> Unit
+) {
+    val userId = SessionManager.getInstance().fetchUserId()
+    val token = SessionManager.getInstance().fetchAuthToken()
+
+    if (userId.isNullOrEmpty() || token.isNullOrEmpty()) {
+        onResult(false, "Token ou ID de usuário ausente")
+        return
+    }
+
+    val url = "http://10.0.2.2:8080/api/user/find?id=$userId"
+    val client = OkHttpClient()
+
+    val request = Request.Builder()
+        .url(url)
+        .addHeader("Authorization", "Bearer $token")
+        .build()
+
+    withContext(Dispatchers.IO) {
+        try {
+            val response = client.newCall(request).execute()
+            if (response.isSuccessful) {
+                val responseData = response.body?.string()
+                if (!responseData.isNullOrEmpty()) {
+                    val json = JSONObject(responseData)
+                    val fetchedName = json.getString("name")
+                    val fetchedEmail = json.getString("email")
+
+                    SessionManager.getInstance().saveUserName(fetchedName)
+                    SessionManager.getInstance().saveUserEmail(fetchedEmail)
+
+                    withContext(Dispatchers.Main) {
+                        onResult(true, null)
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        onResult(false, "Erro ao obter dados do usuário")
+                    }
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    onResult(false, "Token inválido ou sessão expirada")
                 }
             }
         } catch (e: IOException) {

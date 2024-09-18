@@ -26,6 +26,7 @@ import androidx.compose.material.icons.sharp.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedTextField
@@ -40,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -101,7 +103,7 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .background(Color(0xFF253645))
+                .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
                 .padding(innerPadding)
                 .clickable { focusManager.clearFocus() }
@@ -117,7 +119,7 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         .padding(vertical = 10.dp)
                         .align(Alignment.Start),
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 22.sp,
                 )
 
@@ -135,8 +137,8 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         )
                     },
                     shape = RoundedCornerShape(8.dp),
-                    textStyle = TextStyle(color = Color.White),
-                    label = { Text("Para", color = Color.White) },
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                    label = { Text("Para", color = MaterialTheme.colorScheme.onSurface) },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
@@ -161,8 +163,8 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         )
                     },
                     shape = RoundedCornerShape(8.dp),
-                    textStyle = TextStyle(color = Color.White),
-                    label = { Text("Cc", color = Color.White) },
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                    label = { Text("Cc", color = MaterialTheme.colorScheme.onSurface) },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
@@ -187,8 +189,8 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         )
                     },
                     shape = RoundedCornerShape(8.dp),
-                    textStyle = TextStyle(color = Color.White),
-                    label = { Text("Assunto", color = Color.White) },
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                    label = { Text("Assunto", color = MaterialTheme.colorScheme.onSurface) },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
@@ -239,8 +241,8 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         .weight(1f)
                         .padding(vertical = 10.dp),
                     shape = RoundedCornerShape(8.dp),
-                    textStyle = TextStyle(color = Color.White),
-                    label = { Text("Mensagem", color = Color.White) },
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                    label = { Text("Mensagem", color = MaterialTheme.colorScheme.onSurface) },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
@@ -269,7 +271,7 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                             sentEmailRepository.insertSentEmail(newEmail, recipientsList, ccList)
                         }
 
-                        navController.navigate("sentEmails")
+                        navController.navigate("sentItems")
                     },
                     modifier = Modifier
                         .fillMaxWidth()

@@ -16,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -82,7 +81,7 @@ fun inbox(navController: NavController, context: Context) {
                     icon = { Icon(Icons.Filled.Send, contentDescription = "Emails Enviados") },
                     label = { Text("Enviados") },
                     selected = false,
-                    onClick = { navController.navigate("sentEmails") }
+                    onClick = { navController.navigate("sentItems") }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.DateRange, contentDescription = "Calendário") },
@@ -94,14 +93,14 @@ fun inbox(navController: NavController, context: Context) {
                     icon = { Icon(Icons.Filled.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
                     selected = false,
-                    onClick = { navController.navigate("profile") }
+                    onClick = { navController.navigate("userProfile") }
                 )
             }
         }
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .background(Color(0xFF253645))
+                .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
                 .padding(innerPadding)
                 .clickable {
@@ -123,11 +122,11 @@ fun inbox(navController: NavController, context: Context) {
                             searchActive = focusState.isFocused
                         },
                     shape = RoundedCornerShape(50.dp),
-                    textStyle = TextStyle(color = Color.White),
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
                     label = {
                         Text(
                             text = "Search",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(horizontal = 10.dp)
                         )
                     },
@@ -148,7 +147,7 @@ fun inbox(navController: NavController, context: Context) {
                         .padding(vertical = 10.dp)
                         .align(Alignment.Start),
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 22.sp,
                 )
 

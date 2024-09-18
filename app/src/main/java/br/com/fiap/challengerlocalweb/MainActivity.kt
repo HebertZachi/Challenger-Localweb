@@ -1,6 +1,7 @@
 package br.com.fiap.challengerlocalweb
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,22 +11,16 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import br.com.fiap.challengerlocalweb.pages.calendar
-import br.com.fiap.challengerlocalweb.pages.emailCompose
-import br.com.fiap.challengerlocalweb.pages.inbox
-import br.com.fiap.challengerlocalweb.pages.receivedEmailDetail
-import br.com.fiap.challengerlocalweb.pages.sentEmailDetail
-import br.com.fiap.challengerlocalweb.pages.sentEmails
-import br.com.fiap.challengerlocalweb.pages.signin
-import br.com.fiap.challengerlocalweb.pages.signup
-import br.com.fiap.challengerlocalweb.ui.theme.ChallengerLocalWebTheme
+import br.com.fiap.challengerlocalweb.pages.*
 import br.com.fiap.challengerlocalweb.repository.SentEmailRepository
+import br.com.fiap.challengerlocalweb.ui.theme.ChallengerLocalWebTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val sentEmailRepository = SentEmailRepository(applicationContext)
+        SessionManager.initialize(applicationContext)
 
         setContent {
             ChallengerLocalWebTheme {
@@ -34,32 +29,70 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
+                    val context = applicationContext
+                    val sessionManager = SessionManager.getInstance()
+
+                    val userId = sessionManager.fetchUserId() ?: ""
+                    val startDestination = if (userId.isNotEmpty()) "inbox" else "start"
+
                     NavHost(
                         navController = navController,
-                        startDestination = "signin"
+                        startDestination = startDestination
                     ) {
-                        composable(route = "signin") { signin(navController = navController, context = applicationContext) }
-                        composable(route = "signup") { signup(navController = navController, context = applicationContext) }
-                        composable(route = "inbox") { inbox(navController = navController, context = applicationContext) }
-                        composable(route = "sentEmails") { sentEmails(navController = navController, context = applicationContext) }
-                        composable(route = "emailCompose") { emailCompose(navController = navController, sentEmailRepository = sentEmailRepository) }
-                        composable(route = "calendar") { calendar(navController = navController, context = applicationContext) }
+                        composable(route = "start") { startScreen(navController = navController) }
+                        composable(route = "signup") { signup(navController = navController) }
+                        composable(route = "signin") { login(navController = navController, context = context) }
+                        composable(route = "inbox") { inbox(navController = navController, context = context) }
                         composable("receivedEmailDetail/{emailId}") { backStackEntry ->
                             val emailId = backStackEntry.arguments?.getString("emailId")
                             if (emailId != null) {
-                                receivedEmailDetail(navController, emailId, context = applicationContext)
-                            } else {
+                                receivedEmailDetail(navController, emailId, context = context)
                             }
                         }
+
+                        composable(route = "sentItems") {
+                            sentEmails(navController = navController, context = context)
+                        }
+
                         composable("sentEmailDetail/{emailId}") { backStackEntry ->
                             val emailId = backStackEntry.arguments?.getString("emailId")
                             if (emailId != null) {
-                                sentEmailDetail(navController, emailId, context = applicationContext)
-                            } else {
+                                sentEmailDetail(navController, emailId, context = context)
                             }
                         }
+
+                        composable(route = "emailCompose") {
+                            emailCompose(navController = navController, sentEmailRepository = sentEmailRepository)
+                        }
+
                         composable(route = "calendar") {
-                            calendar(navController = navController, context = applicationContext)
+                            calendar(navController = navController, context = context)
+                        }
+
+                        composable("userProfile") {
+                            userProfile(
+                                navController = navController,
+                                context = applicationContext,
+                                onLogout = {
+                                    sessionManager.clearSession()
+                                    Toast.makeText(context, "Sessão encerrada com sucesso!", Toast.LENGTH_SHORT).show()
+                                    navController.navigate("login") {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
+
+                        composable(route = "changePassword") {
+                            changePassword(navController = navController)
+                        }
+
+                        composable(route = "changeUserName") {
+                            changeUserName(navController = navController, context = context)
+                        }
+
+                        composable(route = "userPrefs") {
+                            userPrefs(navController = navController, context = context)
                         }
                     }
                 }

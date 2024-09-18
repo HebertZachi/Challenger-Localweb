@@ -4,7 +4,6 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -15,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
@@ -40,7 +38,7 @@ import androidx.compose.ui.text.withStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun signup(navController: NavController) {
+fun signUp(navController: NavController) {
     var userName by remember { mutableStateOf("") }
     var userEmail by remember { mutableStateOf("") }
     var userPassword by remember { mutableStateOf("") }
@@ -49,7 +47,6 @@ fun signup(navController: NavController) {
     var isPasswordValid by remember { mutableStateOf(true) }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val focusManager = LocalFocusManager.current
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val logoSize = (screenWidth.coerceAtMost(screenHeight) * 0.5f)
@@ -66,12 +63,9 @@ fun signup(navController: NavController) {
     Scaffold { innerPadding ->
         Box(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background) // Ajustado para o tema
                 .fillMaxSize()
                 .padding(innerPadding)
-                .clickable {
-                    focusManager.clearFocus()
-                }
         ) {
             Column(
                 modifier = Modifier
@@ -210,9 +204,9 @@ fun signup(navController: NavController) {
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary) // Ajustado para o tema
                 ) {
-                    Text(text = "Cadastrar", color = MaterialTheme.colorScheme.onPrimary)
+                    Text(text = "Cadastrar", color = MaterialTheme.colorScheme.onPrimary) // Ajustado para o tema
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -220,9 +214,9 @@ fun signup(navController: NavController) {
                 Button(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary) // Ajustado para o tema
                 ) {
-                    Text(text = "Cancelar", color = MaterialTheme.colorScheme.onSecondary)
+                    Text(text = "Cancelar", color = MaterialTheme.colorScheme.onSecondary) // Ajustado para o tema
                 }
             }
         }
@@ -236,7 +230,7 @@ suspend fun registerUser(
     password: String,
     onResult: (Boolean, String?) -> Unit
 ) {
-    val url = "http://10.0.2.2:8080/auth/register"
+    val url = "http://192.168.0.120:8080/auth/register"
     val client = OkHttpClient()
 
     val json = JSONObject().apply {
@@ -265,6 +259,11 @@ suspend fun registerUser(
                 }
             }
         } catch (e: IOException) {
+            e.printStackTrace()
+            withContext(Dispatchers.Main) {
+                onResult(false, e.message)
+            }
+        } catch (e: Exception) {
             e.printStackTrace()
             withContext(Dispatchers.Main) {
                 onResult(false, e.message)
