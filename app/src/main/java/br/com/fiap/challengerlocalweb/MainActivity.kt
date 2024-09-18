@@ -20,8 +20,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val sentEmailRepository = SentEmailRepository(applicationContext)
-
-        // Inicializa o SessionManager com os dados persistidos no SharedPreferences
         SessionManager.initialize(applicationContext)
 
         setContent {
@@ -34,79 +32,67 @@ class MainActivity : ComponentActivity() {
                     val context = applicationContext
                     val sessionManager = SessionManager.getInstance()
 
-                    // Verifica se há um token válido no SessionManager para decidir a tela inicial
                     val userId = sessionManager.fetchUserId() ?: ""
-                    val startDestination = if (userId.isNotEmpty()) "inbox" else "Start"
+                    val startDestination = if (userId.isNotEmpty()) "inbox" else "start"
 
                     NavHost(
                         navController = navController,
                         startDestination = startDestination
                     ) {
-                        composable(route = "Start") { StartScreen(navController = navController) }
-                        composable(route = "Signup") { signUp(navController = navController) }
-                        composable(route = "login") { login(navController = navController, context = context) }
+                        composable(route = "start") { startScreen(navController = navController) }
+                        composable(route = "signup") { signup(navController = navController) }
+                        composable(route = "signin") { login(navController = navController, context = context) }
                         composable(route = "inbox") { inbox(navController = navController, context = context) }
+                        composable("receivedEmailDetail/{emailId}") { backStackEntry ->
+                            val emailId = backStackEntry.arguments?.getString("emailId")
+                            if (emailId != null) {
+                                receivedEmailDetail(navController, emailId, context = context)
+                            }
+                        }
 
-                        // Tela de perfil, agora utilizando o SessionManager diretamente
+                        composable(route = "sentItems") {
+                            sentEmails(navController = navController, context = context)
+                        }
+
+                        composable("sentEmailDetail/{emailId}") { backStackEntry ->
+                            val emailId = backStackEntry.arguments?.getString("emailId")
+                            if (emailId != null) {
+                                sentEmailDetail(navController, emailId, context = context)
+                            }
+                        }
+
+                        composable(route = "emailCompose") {
+                            emailCompose(navController = navController, sentEmailRepository = sentEmailRepository)
+                        }
+
+                        composable(route = "calendar") {
+                            calendar(navController = navController, context = context)
+                        }
+
                         composable("userProfile") {
                             userProfile(
                                 navController = navController,
                                 context = applicationContext,
                                 onLogout = {
-                                    // Limpa a sessão usando o SessionManager
                                     sessionManager.clearSession()
-
-                                    // Notifica que o cache foi limpo
                                     Toast.makeText(context, "Sessão encerrada com sucesso!", Toast.LENGTH_SHORT).show()
-
-                                    // Redireciona para a tela de login
                                     navController.navigate("login") {
-                                        popUpTo(0) { inclusive = true } // Remove o histórico completo
+                                        popUpTo(0) { inclusive = true }
                                     }
                                 }
                             )
                         }
 
-                        // Tela de alteração de senha, utilizando o SessionManager diretamente
                         composable(route = "changePassword") {
-                            changePassword(
-                                navController = navController,
-                                context = context
-                            )
+                            changePassword(navController = navController)
                         }
 
-                        // Tela de alteração de nome, utilizando o SessionManager diretamente
                         composable(route = "changeUserName") {
-                            changeUserName(
-                                navController = navController,
-                                context = context
-                            )
+                            changeUserName(navController = navController, context = context)
                         }
 
-                        // Tela de preferências do usuário
                         composable(route = "userPrefs") {
-                            userPrefs(
-                                navController = navController,
-                                context = context
-                            )
-                        }
-
-                        composable(route = "sentItems") {
-                            sentItems(
-                                navController = navController,
-                                sentEmailRepository = sentEmailRepository
-                            )
-                        }
-
-                        composable(route = "emailCompose") {
-                            emailCompose(
-                                navController = navController,
-                                sentEmailRepository = sentEmailRepository
-                            )
-                        }
-
-                        composable(route = "calendar") {
-                            calendar(navController = navController)
+                            userPrefs(navController = navController, context = context)
                         }
                     }
                 }

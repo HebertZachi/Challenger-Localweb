@@ -21,7 +21,7 @@ import androidx.navigation.NavController
 import br.com.fiap.challengerlocalweb.R
 
 @Composable
-fun StartScreen(navController: NavController) {
+fun startScreen(navController: NavController) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val logoSize = (screenWidth.coerceAtMost(screenHeight) * 0.5f)
@@ -29,7 +29,7 @@ fun StartScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background), // Ajustado para usar o tema
+            .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -50,26 +50,26 @@ fun StartScreen(navController: NavController) {
                     append("mail")
                 }
             },
-            fontSize = (logoSize.value / 3).sp, // Ajusta o tamanho do texto proporcional ao tamanho da logo
+            fontSize = (logoSize.value / 3).sp,
             modifier = Modifier.padding(bottom = 10.dp)
         )
 
         Button(
-            onClick = { navController.navigate("login") },
+            onClick = { navController.navigate("signin") },
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .padding(8.dp),
-            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary) // Usando o tema
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
         ) {
             Text(text = "Já tem conta? Faça Login", color = MaterialTheme.colorScheme.onPrimary)
         }
 
         Button(
-            onClick = { navController.navigate("signUp") },
+            onClick = { navController.navigate("signup") },
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .padding(8.dp),
-            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary) // Usando o tema
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
         ) {
             Text(text = "Ainda não tem conta? Cadastre-se", color = MaterialTheme.colorScheme.onSecondary)
         }

@@ -36,14 +36,12 @@ class SessionManager(context: Context) {
         }
     }
 
-    // Método para salvar o token de autenticação
     fun saveAuthToken(token: String) {
         val editor = prefs.edit()
         editor.putString(USER_TOKEN, token)
         editor.apply()
     }
 
-    // Método para buscar o token de autenticação
     fun fetchAuthToken(): String? {
         return prefs.getString(USER_TOKEN, null)
     }
