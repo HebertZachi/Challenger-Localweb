@@ -1,11 +1,10 @@
-package br.com.fiap.wavemail.model
+package br.com.fiap.challengerlocalweb.model
 
-import java.util.UUID
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
+@Entity(tableName = "users")
 data class User(
-    val id: UUID = UUID.randomUUID(),
-    val name: String,
-    val email: String,
-    val password: String,
-    val Token: String
+    @PrimaryKey val userEmailId: String,
+    val name: String?,
 )

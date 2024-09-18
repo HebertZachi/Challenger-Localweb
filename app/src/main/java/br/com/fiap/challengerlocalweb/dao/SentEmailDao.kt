@@ -2,21 +2,39 @@ package br.com.fiap.challengerlocalweb.dao
 
 import androidx.room.*
 import br.com.fiap.challengerlocalweb.model.SentEmail
+import br.com.fiap.challengerlocalweb.model.SentEmailCcCrossRef
+import br.com.fiap.challengerlocalweb.model.SentEmailReceiverCrossRef
+import br.com.fiap.challengerlocalweb.relations.SentEmailWithUsers
 
 @Dao
 interface SentEmailDao {
-    @Insert
-    suspend fun save(email: SentEmail): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSentEmail(sentEmail: SentEmail)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSentEmailReceiversCrossRef(crossRefs: List<SentEmailReceiverCrossRef>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSentEmailCcCrossRef(crossRefs: List<SentEmailCcCrossRef>)
+
+    @Transaction
+    @Query("SELECT * FROM sent_emails")
+    suspend fun getAllSentEmails(): List<SentEmailWithUsers>
+
+    @Transaction
+    @Query("SELECT * FROM sent_emails WHERE sentEmailId = :emailId")
+    suspend fun getSentEmailById(emailId: String): SentEmailWithUsers?
 
     @Update
-    suspend fun update(email: SentEmail): Int
+    suspend fun updateSentEmail(sentEmail: SentEmail)
 
     @Delete
-    suspend fun delete(email: SentEmail): Int
+    suspend fun deleteSentEmail(sentEmail: SentEmail)
 
-    @Query("SELECT * FROM sent_emails WHERE id = :id")
-    suspend fun findById(id: Long): SentEmail
+    @Query("DELETE FROM SentEmailReceiverCrossRef WHERE sentEmailId = :emailId")
+    suspend fun deleteSentEmailReceiversCrossRefs(emailId: String)
 
-    @Query("SELECT * FROM sent_emails ORDER BY creation_date ASC")
-    suspend fun findAll(): List<SentEmail>
+    @Query("DELETE FROM SentEmailCcCrossRef WHERE sentEmailId = :emailId")
+    suspend fun deleteSentEmailCcCrossRefs(emailId: String)
 }

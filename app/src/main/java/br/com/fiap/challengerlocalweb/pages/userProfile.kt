@@ -1,6 +1,5 @@
 package br.com.fiap.challengerlocalweb.pages
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,7 +18,6 @@ import br.com.fiap.challengerlocalweb.SessionManager
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun userProfile(
     navController: NavController,
@@ -31,7 +29,6 @@ fun userProfile(
     var fetchedUserEmail by remember { mutableStateOf("Carregando...") }
     val coroutineScope = rememberCoroutineScope()
 
-    // Buscar os dados do usuário ao carregar a tela
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             fetchedUserName = sessionManager.fetchUserName() ?: "Nome não encontrado"
@@ -82,7 +79,6 @@ fun userProfile(
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Informações do usuário
                 Text(
                     text = "Perfil do Usuário",
                     fontSize = 28.sp,
@@ -92,7 +88,6 @@ fun userProfile(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Nome do usuário
                 Text(
                     text = fetchedUserName,
                     fontSize = 24.sp,
@@ -102,7 +97,6 @@ fun userProfile(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // E-mail do usuário
                 Text(
                     text = fetchedUserEmail,
                     fontSize = 16.sp,
@@ -112,7 +106,6 @@ fun userProfile(
 
                 Spacer(modifier = Modifier.height(30.dp))
 
-                // Botões de ações
                 Button(
                     onClick = { navController.navigate("changePassword") },
                     modifier = Modifier
@@ -149,7 +142,6 @@ fun userProfile(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Botão de Logout
                 Button(
                     onClick = { onLogout() },
                     modifier = Modifier
