@@ -14,8 +14,6 @@ data class Event(
     val startDateTime: LocalDateTime,
     val endDateTime: LocalDateTime,
     val location: String?,
-    @TypeConverters(StringListConverter::class)
-    val participants: List<String>,
     val isAllDay: Boolean = false,
     val isRecurring: Boolean = false,
     val recurrenceRule: String? = null
