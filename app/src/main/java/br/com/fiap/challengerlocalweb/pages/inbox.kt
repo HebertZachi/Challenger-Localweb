@@ -16,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -25,7 +24,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import br.com.fiap.challengerlocalweb.AppDatabase
 import br.com.fiap.challengerlocalweb.model.Email
 import br.com.fiap.challengerlocalweb.model.ReceivedEmail
 import br.com.fiap.challengerlocalweb.repository.ReceivedEmailRepository
@@ -33,6 +31,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun inbox(navController: NavController, context: Context) {
     var searchQuery by remember { mutableStateOf("") }
@@ -100,7 +99,7 @@ fun inbox(navController: NavController, context: Context) {
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .background(Color(0xFF253645))
+                .background(MaterialTheme.colorScheme.background) // Fundo do tema
                 .fillMaxSize()
                 .padding(innerPadding)
                 .clickable {
@@ -122,11 +121,11 @@ fun inbox(navController: NavController, context: Context) {
                             searchActive = focusState.isFocused
                         },
                     shape = RoundedCornerShape(50.dp),
-                    textStyle = TextStyle(color = Color.White),
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface), // Cor de texto do tema
                     label = {
                         Text(
                             text = "Search",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface, // Cor de rótulo
                             modifier = Modifier.padding(horizontal = 10.dp)
                         )
                     },
@@ -138,6 +137,11 @@ fun inbox(navController: NavController, context: Context) {
                             searchActive = true
                             focusManager.clearFocus()
                         }
+                    ),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        cursorColor = MaterialTheme.colorScheme.primary
                     )
                 )
 
@@ -147,7 +151,7 @@ fun inbox(navController: NavController, context: Context) {
                         .padding(vertical = 10.dp)
                         .align(Alignment.Start),
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground, // Cor do texto do tema
                     fontSize = 22.sp,
                 )
 
@@ -166,7 +170,9 @@ fun inbox(navController: NavController, context: Context) {
                 onClick = { navController.navigate("emailCompose") },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(16.dp)
+                    .padding(16.dp),
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -183,7 +189,7 @@ fun EmailItem(email: ReceivedEmail) {
         onClick = {},
         modifier = Modifier
             .fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(Color(0xFF3C4A60)),
+        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface), // Superfície do tema
         shape = RoundedCornerShape(10.dp),
     ) {
         Column(
@@ -196,7 +202,7 @@ fun EmailItem(email: ReceivedEmail) {
             ) {
                 Text(
                     text = email.baseEmail.subject,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface, // Cor do texto da superfície
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     maxLines = 1,
@@ -208,7 +214,7 @@ fun EmailItem(email: ReceivedEmail) {
                 val formattedDate = email.receivedDate.format(dateFormatter)
                 Text(
                     text = formattedDate,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(start = 8.dp)
                 )
@@ -216,7 +222,7 @@ fun EmailItem(email: ReceivedEmail) {
 
             Text(
                 text = email.baseEmail.body,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -227,6 +233,7 @@ fun EmailItem(email: ReceivedEmail) {
         }
     }
 }
+
 
 fun sampleReceivedEmails() = listOf(
     ReceivedEmail(baseEmail = Email(subject = "Lembrete de Reunião", body = "Não esqueça da nossa reunião às 10h amanhã."), sender = "joao.silva@example.com", receivedDate = LocalDateTime.now().minusDays(1)),

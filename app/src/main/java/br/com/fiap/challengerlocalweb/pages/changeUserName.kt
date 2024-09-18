@@ -6,8 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Visibility
-import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,27 +33,23 @@ import org.json.JSONObject
 import java.io.IOException
 
 @Composable
-fun changePassword(
+fun changeUserName(
     navController: NavController,
     context: Context
 ) {
-    var currentPassword by remember { mutableStateOf("") }
-    var newPassword by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var currentPasswordVisible by remember { mutableStateOf(false) }
-    var newPasswordVisible by remember { mutableStateOf(false) }
-    var confirmPasswordVisible by remember { mutableStateOf(false) }
-
+    var newUserName by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+
 
     val sessionManager = SessionManager.getInstance()
     val userId = sessionManager.fetchUserId() ?: ""
-    val userName = sessionManager.fetchUserName() ?: ""
     val userEmail = sessionManager.fetchUserEmail() ?: ""
     val token = sessionManager.fetchAuthToken() ?: ""
 
     fun validateFields(): Boolean {
-        return currentPassword.isNotEmpty() && newPassword.isNotEmpty() && confirmPassword == newPassword
+        return newUserName.isNotEmpty() && password.isNotEmpty()
     }
 
     Scaffold { innerPadding ->
@@ -71,7 +67,7 @@ fun changePassword(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Alterar Senha",
+                    text = "Alterar Nome",
                     fontSize = 24.sp,
                     color = Color.White,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -80,18 +76,10 @@ fun changePassword(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
-                    value = currentPassword,
-                    onValueChange = { currentPassword = it },
-                    label = { Text("Senha Atual", color = Color.White) },
-                    visualTransformation = if (currentPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        val image = if (currentPasswordVisible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility
-                        IconButton(onClick = { currentPasswordVisible = !currentPasswordVisible }) {
-                            Icon(imageVector = image, contentDescription = "Toggle Password Visibility", tint = Color.White)
-                        }
-                    },
+                    value = newUserName,
+                    onValueChange = { newUserName = it },
+                    label = { Text("Novo Nome", color = Color.White) },
                     keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Next
                     ),
                     modifier = Modifier.fillMaxWidth(),
@@ -101,34 +89,13 @@ fun changePassword(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
-                    value = newPassword,
-                    onValueChange = { newPassword = it },
-                    label = { Text("Nova Senha", color = Color.White) },
-                    visualTransformation = if (newPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Senha", color = Color.White) },
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        val image = if (newPasswordVisible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility
-                        IconButton(onClick = { newPasswordVisible = !newPasswordVisible }) {
-                            Icon(imageVector = image, contentDescription = "Toggle Password Visibility", tint = Color.White)
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Next
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = LocalTextStyle.current.copy(color = Color.White)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
-                    label = { Text("Confirmar Nova Senha", color = Color.White) },
-                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        val image = if (confirmPasswordVisible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility
-                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        val image = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(imageVector = image, contentDescription = "Toggle Password Visibility", tint = Color.White)
                         }
                     },
@@ -146,52 +113,47 @@ fun changePassword(
                     onClick = {
                         if (validateFields()) {
                             coroutineScope.launch {
-                                updatePassword(
+                                updateUserName(
                                     context = context,
                                     userId = userId,
-                                    name = userName,
                                     email = userEmail,
-                                    currentPassword = currentPassword,
-                                    newPassword = newPassword,
+                                    newUserName = newUserName,
+                                    password = password,
                                     token = token
                                 ) { success, errorMessage ->
                                     if (success) {
-                                        Toast.makeText(context, "Senha alterada com sucesso", Toast.LENGTH_SHORT).show()
-                                        navController.navigate("userProfile")
+                                        // Atualiza o nome no SessionManager
+                                        sessionManager.saveUserName(newUserName)
+
+                                        // Redireciona para o perfil
+                                        navController.navigate("userProfile") {
+                                            popUpTo("userProfile") { inclusive = true }
+                                        }
+                                        Toast.makeText(context, "Nome alterado com sucesso", Toast.LENGTH_SHORT).show()
                                     } else {
                                         Toast.makeText(context, "Erro: $errorMessage", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
                         } else {
-                            Toast.makeText(context, "Preencha todos os campos corretamente", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "Alterar Senha")
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = { navController.navigate("userProfile") },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = "Cancelar")
+                    Text(text = "Salvar Nome")
                 }
             }
         }
     }
 }
 
-suspend fun updatePassword(
+suspend fun updateUserName(
     context: Context,
     userId: String,
-    name: String,
     email: String,
-    currentPassword: String,
-    newPassword: String,
+    newUserName: String,
+    password: String,
     token: String,
     onResult: (Boolean, String?) -> Unit
 ) {
@@ -199,10 +161,10 @@ suspend fun updatePassword(
     val client = OkHttpClient()
 
     val json = JSONObject().apply {
-        put("name", name)
+        put("name", newUserName)
         put("email", email)
-        put("currentPassword", currentPassword)
-        put("newPassword", newPassword)
+        put("currentPassword", password)
+        put("newPassword", password)
     }
 
     val requestBody: RequestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())

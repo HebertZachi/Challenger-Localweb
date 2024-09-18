@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +27,7 @@ import br.com.fiap.challengerlocalweb.repository.SentEmailRepository
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRepository) {
     var recipient by remember { mutableStateOf(TextFieldValue("")) }
@@ -69,7 +69,7 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .background(Color(0xFF253645))
+                .background(MaterialTheme.colorScheme.background) // Usa o fundo do tema
                 .fillMaxSize()
                 .padding(innerPadding)
                 .clickable { focusManager.clearFocus() }
@@ -85,7 +85,7 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         .padding(vertical = 10.dp)
                         .align(Alignment.Start),
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground, // Usa a cor do tema para o texto
                     fontSize = 22.sp,
                 )
 
@@ -96,8 +96,8 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         .fillMaxWidth()
                         .padding(vertical = 10.dp),
                     shape = RoundedCornerShape(8.dp),
-                    textStyle = TextStyle(color = Color.White),
-                    label = { Text("Para", color = Color.White) },
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface), // Cor do texto do tema
+                    label = { Text("Para", color = MaterialTheme.colorScheme.onSurface) }, // Cor do rótulo
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
@@ -105,6 +105,11 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         onDone = {
                             focusManager.clearFocus()
                         }
+                    ),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        cursorColor = MaterialTheme.colorScheme.primary
                     )
                 )
 
@@ -115,8 +120,8 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         .fillMaxWidth()
                         .padding(vertical = 10.dp),
                     shape = RoundedCornerShape(8.dp),
-                    textStyle = TextStyle(color = Color.White),
-                    label = { Text("Cc", color = Color.White) },
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                    label = { Text("Cc", color = MaterialTheme.colorScheme.onSurface) },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
@@ -124,6 +129,11 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         onDone = {
                             focusManager.clearFocus()
                         }
+                    ),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        cursorColor = MaterialTheme.colorScheme.primary
                     )
                 )
 
@@ -134,8 +144,8 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         .fillMaxWidth()
                         .padding(vertical = 10.dp),
                     shape = RoundedCornerShape(8.dp),
-                    textStyle = TextStyle(color = Color.White),
-                    label = { Text("Assunto", color = Color.White) },
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                    label = { Text("Assunto", color = MaterialTheme.colorScheme.onSurface) },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
@@ -143,6 +153,11 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         onDone = {
                             focusManager.clearFocus()
                         }
+                    ),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        cursorColor = MaterialTheme.colorScheme.primary
                     )
                 )
 
@@ -154,8 +169,8 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         .weight(1f)
                         .padding(vertical = 10.dp),
                     shape = RoundedCornerShape(8.dp),
-                    textStyle = TextStyle(color = Color.White),
-                    label = { Text("Corpo do e-mail", color = Color.White) },
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                    label = { Text("Corpo do e-mail", color = MaterialTheme.colorScheme.onSurface) },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
@@ -163,6 +178,11 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                         onDone = {
                             focusManager.clearFocus()
                         }
+                    ),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        cursorColor = MaterialTheme.colorScheme.primary
                     ),
                     maxLines = 5
                 )
@@ -187,7 +207,11 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp)
+                        .padding(vertical = 16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
                     Text(text = "Enviar", fontSize = 18.sp)
                 }
@@ -195,4 +219,3 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
         }
     }
 }
-

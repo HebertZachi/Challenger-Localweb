@@ -13,21 +13,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import br.com.fiap.challengerlocalweb.R
-import br.com.fiap.challengerlocalweb.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,22 +30,40 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun login(navController: NavController, context: Context) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun signUp(navController: NavController) {
+    var userName by remember { mutableStateOf("") }
+    var userEmail by remember { mutableStateOf("") }
+    var userPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var isEmailValid by remember { mutableStateOf(true) }
+    var isPasswordValid by remember { mutableStateOf(true) }
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val logoSize = (screenWidth.coerceAtMost(screenHeight) * 0.5f)
 
+    fun validateEmail(email: String): Boolean {
+        val emailPattern = android.util.Patterns.EMAIL_ADDRESS
+        return emailPattern.matcher(email).matches()
+    }
+
+    fun validatePassword(password: String): Boolean {
+        return password.length > 8
+    }
+
     Scaffold { innerPadding ->
         Box(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background) // Ajustado para o tema
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
@@ -70,23 +80,23 @@ fun login(navController: NavController, context: Context) {
                     modifier = Modifier.size(logoSize)
                 )
 
-                Spacer(modifier = Modifier.height(5.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 5.dp)
+                        .padding(horizontal = 16.dp)
                 ) {
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                                append("Lo")
+                                append("Cadastro de")
                             }
                             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
-                                append("gin")
+                                append(" Usuário")
                             }
                         },
-                        fontSize = 50.sp,
+                        fontSize = 20.sp,
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
                             .align(Alignment.Center),
@@ -97,15 +107,11 @@ fun login(navController: NavController, context: Context) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("E-mail", color = MaterialTheme.colorScheme.onBackground) },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
+                    value = userName,
+                    onValueChange = { userName = it },
+                    label = { Text("Nome", color = MaterialTheme.colorScheme.onBackground) },
                     textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
@@ -115,9 +121,44 @@ fun login(navController: NavController, context: Context) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
+                    value = userEmail,
+                    onValueChange = {
+                        userEmail = it
+                        isEmailValid = validateEmail(it)
+                    },
+                    label = { Text("E-mail", color = MaterialTheme.colorScheme.onBackground) },
+                    isError = !isEmailValid,
+                    textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
+                    )
+                )
+                if (!isEmailValid) {
+                    Text(
+                        text = "Por favor, insira um e-mail válido.",
+                        color = MaterialTheme.colorScheme.error,
+                        style = LocalTextStyle.current.copy(fontSize = 12.sp),
+                        modifier = Modifier.align(Alignment.Start)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = userPassword,
+                    onValueChange = {
+                        userPassword = it
+                        isPasswordValid = validatePassword(it)
+                    },
                     label = { Text("Senha", color = MaterialTheme.colorScheme.onBackground) },
+                    isError = !isPasswordValid,
+                    textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
@@ -130,63 +171,70 @@ fun login(navController: NavController, context: Context) {
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
+                if (!isPasswordValid) {
+                    Text(
+                        text = "A senha deve ter mais de 8 caracteres.",
+                        color = MaterialTheme.colorScheme.error,
+                        style = LocalTextStyle.current.copy(fontSize = 12.sp),
+                        modifier = Modifier.align(Alignment.Start)
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
                     onClick = {
-                        coroutineScope.launch {
-                            loginUser(context, email, password) { success, errorMessage ->
-                                if (success) {
-                                    coroutineScope.launch {
-                                        fetchUserProfile(context) { profileSuccess, profileError ->
-                                            if (profileSuccess) {
-                                                navController.navigate("inbox")
-                                            } else {
-                                                Toast.makeText(context, "Erro ao buscar perfil: $profileError", Toast.LENGTH_LONG).show()
-                                            }
-                                        }
+                        if (isEmailValid && isPasswordValid) {
+                            coroutineScope.launch {
+                                registerUser(context, userName, userEmail, userPassword) { success, errorMessage ->
+                                    if (success) {
+                                        navController.navigate("login")
+                                    } else {
+                                        Toast.makeText(context, "Erro ao cadastrar usuário: $errorMessage", Toast.LENGTH_LONG).show()
                                     }
-                                } else {
-                                    Toast.makeText(context, "Erro ao fazer login: $errorMessage", Toast.LENGTH_LONG).show()
                                 }
                             }
+                        } else {
+                            Toast.makeText(context, "Corrija os erros antes de continuar.", Toast.LENGTH_LONG).show()
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary) // Ajustado para o tema
                 ) {
-                    Text(text = "Login")
+                    Text(text = "Cadastrar", color = MaterialTheme.colorScheme.onPrimary) // Ajustado para o tema
                 }
-
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                TextButton(
-                    onClick = { navController.navigate("Signup") }
+                Button(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary) // Ajustado para o tema
                 ) {
-                    Text("Não tem uma conta? Cadastre-se", color = MaterialTheme.colorScheme.onBackground)
+                    Text(text = "Cancelar", color = MaterialTheme.colorScheme.onSecondary) // Ajustado para o tema
                 }
             }
         }
     }
 }
 
-suspend fun loginUser(
+suspend fun registerUser(
     context: Context,
+    name: String,
     email: String,
     password: String,
     onResult: (Boolean, String?) -> Unit
 ) {
-    val url = "http://192.168.0.120:8080/auth/login"
+    val url = "http://192.168.0.120:8080/auth/register"
     val client = OkHttpClient()
 
     val json = JSONObject().apply {
+        put("name", name)
         put("email", email)
         put("password", password)
     }
@@ -200,23 +248,14 @@ suspend fun loginUser(
     withContext(Dispatchers.IO) {
         try {
             val response = client.newCall(request).execute()
-            val responseBody = response.body?.string()
-
-            if (response.isSuccessful && responseBody != null) {
-                val responseJson = JSONObject(responseBody)
-
-                val userId = responseJson.getString("userId")
-                val token = responseJson.getString("token")
-
-                SessionManager.getInstance().saveUserId(userId)
-                SessionManager.getInstance().saveAuthToken(token)
-
+            if (response.isSuccessful) {
                 withContext(Dispatchers.Main) {
                     onResult(true, null)
                 }
             } else {
+                val errorMessage = response.body?.string() ?: "Erro desconhecido"
                 withContext(Dispatchers.Main) {
-                    onResult(false, "Erro: ${response.message}")
+                    onResult(false, errorMessage)
                 }
             }
         } catch (e: IOException) {
@@ -225,61 +264,6 @@ suspend fun loginUser(
                 onResult(false, e.message)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            withContext(Dispatchers.Main) {
-                onResult(false, e.message)
-            }
-        }
-    }
-}
-
-suspend fun fetchUserProfile(
-    context: Context,
-    onResult: (Boolean, String?) -> Unit
-) {
-    val userId = SessionManager.getInstance().fetchUserId()
-    val token = SessionManager.getInstance().fetchAuthToken()
-
-    if (userId.isNullOrEmpty() || token.isNullOrEmpty()) {
-        onResult(false, "Token ou ID de usuário ausente")
-        return
-    }
-
-    val url = "http://192.168.0.120:8080/api/user/find?id=$userId"
-    val client = OkHttpClient()
-
-    val request = Request.Builder()
-        .url(url)
-        .addHeader("Authorization", "Bearer $token")
-        .build()
-
-    withContext(Dispatchers.IO) {
-        try {
-            val response = client.newCall(request).execute()
-            if (response.isSuccessful) {
-                val responseData = response.body?.string()
-                if (!responseData.isNullOrEmpty()) {
-                    val json = JSONObject(responseData)
-                    val fetchedName = json.getString("name")
-                    val fetchedEmail = json.getString("email")
-
-                    SessionManager.getInstance().saveUserName(fetchedName)
-                    SessionManager.getInstance().saveUserEmail(fetchedEmail)
-
-                    withContext(Dispatchers.Main) {
-                        onResult(true, null)
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        onResult(false, "Erro ao obter dados do usuário")
-                    }
-                }
-            } else {
-                withContext(Dispatchers.Main) {
-                    onResult(false, "Token inválido ou sessão expirada")
-                }
-            }
-        } catch (e: IOException) {
             e.printStackTrace()
             withContext(Dispatchers.Main) {
                 onResult(false, e.message)

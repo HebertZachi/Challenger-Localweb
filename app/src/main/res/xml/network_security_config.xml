@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Permitir tráfego HTTP para o IP 192.168.0.120 -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">192.168.0.120</domain>
+    </domain-config>
+
+    <!-- Permitir tráfego HTTP para localhost, caso esteja usando também -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+    </domain-config>
+</network-security-config>

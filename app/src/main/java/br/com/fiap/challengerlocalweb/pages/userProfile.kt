@@ -1,10 +1,9 @@
 package br.com.fiap.challengerlocalweb.pages
 
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -12,16 +11,33 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import br.com.fiap.challengerlocalweb.SessionManager
+import kotlinx.coroutines.launch
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun userProfile(navController: NavController) {
-    var isEditing by remember { mutableStateOf(false) }
-    var userName by remember { mutableStateOf(TextFieldValue("Carlos Roberto")) }
-    var emailList by remember { mutableStateOf(listOf("carlinhos@example.com", "carlosrobs@work.com")) }
+fun userProfile(
+    navController: NavController,
+    context: Context,
+    onLogout: () -> Unit
+) {
+    val sessionManager = SessionManager.getInstance()
+    var fetchedUserName by remember { mutableStateOf("Carregando...") }
+    var fetchedUserEmail by remember { mutableStateOf("Carregando...") }
+    val coroutineScope = rememberCoroutineScope()
+
+    // Buscar os dados do usuário ao carregar a tela
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            fetchedUserName = sessionManager.fetchUserName() ?: "Nome não encontrado"
+            fetchedUserEmail = sessionManager.fetchUserEmail() ?: "E-mail não encontrado"
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -55,123 +71,91 @@ fun userProfile(navController: NavController) {
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .background(Color(0xFF253645))
+                .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            contentAlignment = Alignment.TopCenter
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (isEditing) {
-                    OutlinedTextField(
-                        value = userName,
-                        onValueChange = { userName = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Nome", color = Color.White) },
-                        textStyle = LocalTextStyle.current.copy(color = Color.White)
-                    )
-                } else {
-                    Text(
-                        text = userName.text,
-                        fontSize = 24.sp,
-                        color = Color.White,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
+                // Informações do usuário
                 Text(
-                    text = "E-MAILS ADICIONADOS",
-                    fontSize = 20.sp,
-                    color = Color.White,
-                    modifier = Modifier.align(Alignment.Start)
+                    text = "Perfil do Usuário",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Nome do usuário
+                Text(
+                    text = fetchedUserName,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    emailList.forEachIndexed { index, email ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                                .background(Color(0xFF3C4A60), shape = RoundedCornerShape(8.dp))
-                                .padding(8.dp)
-                        ) {
-                            Text(
-                                text = email,
-                                fontSize = 18.sp,
-                                color = Color.White,
-                                modifier = Modifier.weight(1f)
-                            )
-                            IconButton(
-                                onClick = {
-                                    navController.navigate("editAccountManually/$email")
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Edit Email",
-                                    tint = Color.White
-                                )
-                            }
-                            if (isEditing) {
-                                IconButton(onClick = {
-                                    emailList = emailList.toMutableList().apply { removeAt(index) }
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = "Remove Email",
-                                        tint = Color.Red
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+                // E-mail do usuário
+                Text(
+                    text = fetchedUserEmail,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Light,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(30.dp))
 
-                Button(
-                    onClick = { isEditing = !isEditing },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = if (isEditing) "Confirmar" else "Editar Perfil")
-                }
-
-                if (isEditing) {
-                    Button(
-                        onClick = { isEditing = false },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = "Descartar Alterações")
-                    }
-                }
-
-                Button(
-                    onClick = { navController.navigate("addAccount") },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = "Adicionar Conta de E-mail")
-                }
-
+                // Botões de ações
                 Button(
                     onClick = { navController.navigate("changePassword") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
                 ) {
                     Text(text = "Alterar Senha")
                 }
 
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Button(
-                    onClick = { navController.navigate("login") },
-                    modifier = Modifier.fillMaxWidth()
+                    onClick = { navController.navigate("changeUserName") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
+                ) {
+                    Text(text = "Alterar Nome")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = { navController.navigate("userPrefs") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
+                ) {
+                    Text(text = "Preferências")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Botão de Logout
+                Button(
+                    onClick = { onLogout() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    colors = ButtonDefaults.buttonColors(Color.Red)
                 ) {
                     Text(text = "Logout")
                 }
@@ -179,4 +163,3 @@ fun userProfile(navController: NavController) {
         }
     }
 }
-//teste

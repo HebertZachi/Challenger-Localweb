@@ -29,6 +29,7 @@ import br.com.fiap.challengerlocalweb.repository.SentEmailRepository
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun sentItems(navController: NavController, sentEmailRepository: SentEmailRepository) {
     var searchQuery by remember { mutableStateOf("") }
@@ -84,7 +85,7 @@ fun sentItems(navController: NavController, sentEmailRepository: SentEmailReposi
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .background(Color(0xFF253645))
+                .background(MaterialTheme.colorScheme.background) // Ajustado para o tema
                 .fillMaxSize()
                 .padding(innerPadding)
                 .clickable {
@@ -106,11 +107,11 @@ fun sentItems(navController: NavController, sentEmailRepository: SentEmailReposi
                             searchActive = focusState.isFocused
                         },
                     shape = RoundedCornerShape(50.dp),
-                    textStyle = TextStyle(color = Color.White),
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground), // Ajustado para o tema
                     label = {
                         Text(
                             text = "Search",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground, // Ajustado para o tema
                             modifier = Modifier.padding(horizontal = 10.dp)
                         )
                     },
@@ -122,6 +123,10 @@ fun sentItems(navController: NavController, sentEmailRepository: SentEmailReposi
                             searchActive = true
                             focusManager.clearFocus()
                         }
+                    ),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
 
@@ -129,9 +134,9 @@ fun sentItems(navController: NavController, sentEmailRepository: SentEmailReposi
                     text = "Itens Enviados",
                     modifier = Modifier
                         .padding(vertical = 10.dp)
-                        .align(Alignment.Start), // Alinhamento à esquerda
+                        .align(Alignment.Start),
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground, // Ajustado para o tema
                     fontSize = 22.sp,
                 )
 
@@ -150,7 +155,8 @@ fun sentItems(navController: NavController, sentEmailRepository: SentEmailReposi
                 onClick = { navController.navigate("emailCompose") },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(16.dp)
+                    .padding(16.dp),
+                containerColor = MaterialTheme.colorScheme.primary // Ajustado para o tema
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -167,7 +173,7 @@ fun SentEmailItem(email: SentEmail) {
         onClick = { /* Navegar para a tela de detalhes do e-mail */ },
         modifier = Modifier
             .fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(Color(0xFF3C4A60)),
+        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surfaceVariant), // Ajustado para o tema
         shape = RoundedCornerShape(10.dp),
     ) {
         Column(
@@ -180,7 +186,7 @@ fun SentEmailItem(email: SentEmail) {
             ) {
                 Text(
                     text = email.baseEmail.subject,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface, // Ajustado para o tema
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     maxLines = 1,
@@ -192,7 +198,7 @@ fun SentEmailItem(email: SentEmail) {
                 val formattedDate = email.creationDate.format(dateFormatter)
                 Text(
                     text = formattedDate,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, // Ajustado para o tema
                     fontSize = 12.sp,
                     modifier = Modifier.padding(start = 8.dp)
                 )
@@ -200,7 +206,7 @@ fun SentEmailItem(email: SentEmail) {
 
             Text(
                 text = "Para: ${email.recipient}",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, // Ajustado para o tema
                 fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -211,7 +217,7 @@ fun SentEmailItem(email: SentEmail) {
 
             Text(
                 text = email.baseEmail.body,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, // Ajustado para o tema
                 fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
