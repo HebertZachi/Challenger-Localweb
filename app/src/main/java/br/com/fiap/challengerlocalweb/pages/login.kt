@@ -183,7 +183,7 @@ suspend fun loginUser(
     password: String,
     onResult: (Boolean, String?) -> Unit
 ) {
-    val url = "http://192.168.0.120:8080/auth/login"
+    val url = "http://10.0.2.2:8080/auth/login"
     val client = OkHttpClient()
 
     val json = JSONObject().apply {
@@ -245,7 +245,7 @@ suspend fun fetchUserProfile(
         return
     }
 
-    val url = "http://192.168.0.120:8080/api/user/find?id=$userId"
+    val url = "http://10.0.2.2:8080/api/user/find?id=$userId"
     val client = OkHttpClient()
 
     val request = Request.Builder()
