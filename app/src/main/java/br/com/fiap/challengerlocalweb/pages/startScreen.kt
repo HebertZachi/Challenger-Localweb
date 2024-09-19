@@ -55,7 +55,7 @@ fun startScreen(navController: NavController) {
         )
 
         Button(
-            onClick = { navController.navigate("signin") },
+            onClick = { navController.navigate("login") },
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .padding(8.dp),

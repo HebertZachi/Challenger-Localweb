@@ -13,50 +13,40 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import br.com.fiap.challengerlocalweb.SessionManager
-import kotlinx.coroutines.Dispatchers
+import br.com.fiap.challengerlocalweb.theme.UserThemeManager
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
-import java.io.IOException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun userPrefs(
     navController: NavController,
-    context: Context
+    context: Context,
+    userThemeManager: UserThemeManager
 ) {
-    // Inicializa o SessionManager para manipular preferências
     val sessionManager = SessionManager.getInstance()
-
-    // Estado para armazenar o tema e cor de texto
-    var darkModeEnabled by remember { mutableStateOf(false) }
-    var selectedTextColor by remember { mutableStateOf(Color.Black) }
-    var backgroundColor by remember { mutableStateOf(Color.White) }  // Cor de fundo padrão para Light Mode
-
     val coroutineScope = rememberCoroutineScope()
+    val toastDuration = Toast.LENGTH_SHORT
 
-    // Carregar as preferências do SessionManager ao abrir a tela
+    // Estado para armazenar o tema e cor de texto a partir do UserThemeManager
+    var darkModeEnabled by remember { mutableStateOf(userThemeManager.isDarkMode.value ?: false) }
+    var selectedTextColor by remember { mutableStateOf(userThemeManager.selectedTextColor.value ?: Color.Black) }
+    var backgroundColor by remember { mutableStateOf(userThemeManager.backgroundColor.value ?: Color.White) }
+
+    // Atualizar as preferências ao modificar o estado do tema ou cor de texto
     LaunchedEffect(Unit) {
-        coroutineScope.launch {
-            // Busca as preferências do usuário no SessionManager
-            val savedTheme = sessionManager.fetchUserTheme() ?: "LIGHT"
-            val savedColorScheme = sessionManager.fetchUserColorScheme() ?: "#000000"
-            val token = sessionManager.fetchAuthToken() ?: ""  // Obtém o token do SessionManager
+        userThemeManager.loadUserPreferences(
+            onError = { error ->
+                Toast.makeText(context, error, toastDuration).show()
+            }
+        )
 
-            darkModeEnabled = savedTheme == "DARK"
-            selectedTextColor = Color(android.graphics.Color.parseColor(savedColorScheme))
-            backgroundColor = if (darkModeEnabled) Color.Black else Color.White
-        }
+        darkModeEnabled = userThemeManager.isDarkMode.value ?: false
+        selectedTextColor = userThemeManager.selectedTextColor.value ?: Color.Black
+        backgroundColor = userThemeManager.backgroundColor.value ?: Color.White
     }
 
     Scaffold(
@@ -85,7 +75,7 @@ fun userPrefs(
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .background(backgroundColor)  // Aplica a cor de fundo conforme o estado do tema
+                .background(backgroundColor)
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
@@ -117,12 +107,13 @@ fun userPrefs(
                         checked = darkModeEnabled,
                         onCheckedChange = {
                             darkModeEnabled = it
-                            backgroundColor = if (darkModeEnabled) Color.Black else Color.White
+                            userThemeManager.toggleDarkMode(it)
 
-                            // Salvar as preferências de tema ao alternar o switch
+                            // Atualiza o background com base no tema
+                            backgroundColor = userThemeManager.backgroundColor.value ?: Color.White
+
                             coroutineScope.launch {
                                 sessionManager.saveUserTheme(if (darkModeEnabled) "DARK" else "LIGHT")
-                                saveUserPreferences(context, sessionManager.fetchUserId()!!, if (darkModeEnabled) "DARK" else "LIGHT", selectedTextColor, sessionManager.fetchAuthToken()!!)
                             }
                         },
                         colors = SwitchDefaults.colors(
@@ -150,30 +141,30 @@ fun userPrefs(
                 ) {
                     ColorOption(color = Color.Black, onColorSelected = { newColor ->
                         selectedTextColor = newColor
+                        userThemeManager.updateTextColor(newColor)
                         coroutineScope.launch {
-                            sessionManager.saveUserColorScheme("#000000")  // Salva no SessionManager
-                            saveUserPreferences(context, sessionManager.fetchUserId()!!, if (darkModeEnabled) "DARK" else "LIGHT", selectedTextColor, sessionManager.fetchAuthToken()!!)
+                            sessionManager.saveUserColorScheme("#000000")
                         }
                     })
                     ColorOption(color = Color.Red, onColorSelected = { newColor ->
                         selectedTextColor = newColor
+                        userThemeManager.updateTextColor(newColor)
                         coroutineScope.launch {
-                            sessionManager.saveUserColorScheme("#FF0000")  // Salva no SessionManager
-                            saveUserPreferences(context, sessionManager.fetchUserId()!!, if (darkModeEnabled) "DARK" else "LIGHT", selectedTextColor, sessionManager.fetchAuthToken()!!)
+                            sessionManager.saveUserColorScheme("#FF0000")
                         }
                     })
                     ColorOption(color = Color.Blue, onColorSelected = { newColor ->
                         selectedTextColor = newColor
+                        userThemeManager.updateTextColor(newColor)
                         coroutineScope.launch {
-                            sessionManager.saveUserColorScheme("#0000FF")  // Salva no SessionManager
-                            saveUserPreferences(context, sessionManager.fetchUserId()!!, if (darkModeEnabled) "DARK" else "LIGHT", selectedTextColor, sessionManager.fetchAuthToken()!!)
+                            sessionManager.saveUserColorScheme("#0000FF")
                         }
                     })
                     ColorOption(color = Color.Green, onColorSelected = { newColor ->
                         selectedTextColor = newColor
+                        userThemeManager.updateTextColor(newColor)
                         coroutineScope.launch {
-                            sessionManager.saveUserColorScheme("#008000")  // Salva no SessionManager
-                            saveUserPreferences(context, sessionManager.fetchUserId()!!, if (darkModeEnabled) "DARK" else "LIGHT", selectedTextColor, sessionManager.fetchAuthToken()!!)
+                            sessionManager.saveUserColorScheme("#008000")
                         }
                     })
                 }
@@ -195,66 +186,14 @@ fun userPrefs(
     }
 }
 
-suspend fun saveUserPreferences(
-    context: Context,
-    userId: String,
-    theme: String,
-    textColor: Color,
-    token: String,
-    onResult: (Boolean, String?) -> Unit = { _, _ -> }  // Callback opcional para mostrar sucesso ou erro
-) {
-    val url = "http://192.168.0.120:8080/api/user/preferences"
-    val client = OkHttpClient()
-
-    // Converta a cor para uma string hexadecimal
-    val colorHex = String.format("#%06X", 0xFFFFFF and textColor.toArgb())
-
-    // Crie o objeto JSON com as preferências
-    val json = JSONObject().apply {
-        put("theme", theme)
-        put("colorScheme", colorHex)
-        put("user", userId)
-    }
-
-    // Crie o corpo da requisição com os dados JSON
-    val requestBody: RequestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
-    val request = Request.Builder()
-        .url(url)
-        .post(requestBody)  // Mudando para POST para criar ou atualizar as preferências
-        .addHeader("Authorization", "Bearer $token")
-        .build()
-
-    // Executa a requisição em um contexto de IO
-    withContext(Dispatchers.IO) {
-        try {
-            val response = client.newCall(request).execute()
-            if (response.isSuccessful) {
-                withContext(Dispatchers.Main) {
-                    onResult(true, null)  // Chama o callback de sucesso
-                }
-            } else {
-                val errorMessage = response.body?.string() ?: "Erro desconhecido"
-                withContext(Dispatchers.Main) {
-                    onResult(false, "Erro: ${response.message}. Detalhes: $errorMessage")
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            withContext(Dispatchers.Main) {
-                onResult(false, e.message)
-            }
-        }
-    }
-}
-
 @Composable
 fun ColorOption(color: Color, onColorSelected: (Color) -> Unit) {
     Button(
         onClick = { onColorSelected(color) },
         modifier = Modifier
             .size(40.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = color) // Definindo a cor correta do botão
+        colors = ButtonDefaults.buttonColors(containerColor = color)
     ) {
-        // O conteúdo do botão pode ficar vazio, já que é apenas um seletor de cor
+        // O botão de seleção de cor não precisa de conteúdo
     }
 }

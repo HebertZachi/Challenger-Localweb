@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import br.com.fiap.challengerlocalweb.pages.*
 import br.com.fiap.challengerlocalweb.repository.SentEmailRepository
+import br.com.fiap.challengerlocalweb.theme.UserThemeManager
 import br.com.fiap.challengerlocalweb.ui.theme.ChallengerLocalWebTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,6 +22,7 @@ class MainActivity : ComponentActivity() {
 
         val sentEmailRepository = SentEmailRepository(applicationContext)
         SessionManager.initialize(applicationContext)
+        val userThemeManager = UserThemeManager(applicationContext) // Criando o userThemeManager
 
         setContent {
             ChallengerLocalWebTheme {
@@ -41,8 +43,8 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable(route = "start") { startScreen(navController = navController) }
                         composable(route = "signup") { signup(navController = navController) }
-                        composable(route = "signin") { login(navController = navController, context = context) }
-                        composable(route = "inbox") { inbox(navController = navController, context = context) }
+                        composable(route = "login") { login(navController = navController, context = context) }
+                        composable(route = "inbox") { inbox(navController = navController, context = context, userThemeManager = userThemeManager) } // Passando userThemeManager
                         composable("receivedEmailDetail/{emailId}") { backStackEntry ->
                             val emailId = backStackEntry.arguments?.getString("emailId")
                             if (emailId != null) {
@@ -62,17 +64,18 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(route = "emailCompose") {
-                            emailCompose(navController = navController, sentEmailRepository = sentEmailRepository)
+                            emailCompose(navController = navController, sentEmailRepository = sentEmailRepository, userThemeManager = userThemeManager) // Passando userThemeManager
                         }
 
                         composable(route = "calendar") {
-                            calendar(navController = navController, context = context)
+                            calendar(navController = navController, context = context, userThemeManager = userThemeManager) // Passando userThemeManager
                         }
 
                         composable("userProfile") {
                             userProfile(
                                 navController = navController,
                                 context = applicationContext,
+                                UserThemeManager = UserThemeManager, // Passando userThemeManager
                                 onLogout = {
                                     sessionManager.clearSession()
                                     Toast.makeText(context, "Sessão encerrada com sucesso!", Toast.LENGTH_SHORT).show()
@@ -92,7 +95,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(route = "userPrefs") {
-                            userPrefs(navController = navController, context = context)
+                            userPrefs(navController = navController, context = context, userThemeManager = userThemeManager) // Passando userThemeManager
                         }
                     }
                 }

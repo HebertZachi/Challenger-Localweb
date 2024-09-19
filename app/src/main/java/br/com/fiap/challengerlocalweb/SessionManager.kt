@@ -3,7 +3,7 @@ package br.com.fiap.challengerlocalweb
 import android.content.Context
 import android.content.SharedPreferences
 
-class SessionManager(context: Context) {
+class SessionManager private constructor(context: Context) {
 
     // Definindo SharedPreferences para armazenar as preferências do usuário
     private val prefs: SharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
@@ -96,7 +96,7 @@ class SessionManager(context: Context) {
         editor.apply()
     }
 
-    // Método para buscar o tema do usuário. Não deve retornar valor padrão "LIGHT" se o usuário já tiver uma preferência.
+    // Método para buscar o tema do usuário
     fun fetchUserTheme(): String? {
         return prefs.getString(USER_THEME, null)  // Retorna null se não estiver salvo
     }
@@ -108,7 +108,7 @@ class SessionManager(context: Context) {
         editor.apply()
     }
 
-    // Método para buscar o esquema de cores do usuário. Não deve retornar valor padrão "#000000" se o usuário já tiver uma preferência.
+    // Método para buscar o esquema de cores do usuário
     fun fetchUserColorScheme(): String? {
         return prefs.getString(USER_COLOR_SCHEME, null)  // Retorna null se não estiver salvo
     }

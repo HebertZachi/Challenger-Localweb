@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -26,11 +27,12 @@ import androidx.navigation.NavController
 import br.com.fiap.challengerlocalweb.model.ReceivedEmail
 import br.com.fiap.challengerlocalweb.relations.ReceivedEmailWithUsers
 import br.com.fiap.challengerlocalweb.repository.ReceivedEmailRepository
+import br.com.fiap.challengerlocalweb.theme.UserThemeManager
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 @Composable
-fun inbox(navController: NavController, context: Context) {
+fun inbox(navController: NavController, context: Context, userThemeManager: UserThemeManager) {
     var searchQuery by remember { mutableStateOf("") }
     var searchActive by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
@@ -38,6 +40,9 @@ fun inbox(navController: NavController, context: Context) {
     val receivedEmailRepository = ReceivedEmailRepository(context)
     val coroutineScope = rememberCoroutineScope()
     var emails by remember { mutableStateOf(listOf<ReceivedEmailWithUsers>()) }
+
+    val backgroundColor = userThemeManager.backgroundColor.value
+    val textColor = userThemeManager.selectedTextColor.value
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
@@ -73,25 +78,25 @@ fun inbox(navController: NavController, context: Context) {
             NavigationBar {
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.Email, contentDescription = "Emails Recebidos") },
-                    label = { Text("Recebidos") },
+                    label = { Text("Recebidos", style = TextStyle(color = textColor)) },
                     selected = true,
                     onClick = { navController.navigate("inbox") }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.Send, contentDescription = "Emails Enviados") },
-                    label = { Text("Enviados") },
+                    label = { Text("Enviados", style = TextStyle(color = textColor)) },
                     selected = false,
                     onClick = { navController.navigate("sentItems") }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.DateRange, contentDescription = "Calendário") },
-                    label = { Text("Calendário") },
+                    label = { Text("Calendário", style = TextStyle(color = textColor)) },
                     selected = false,
                     onClick = { navController.navigate("calendar") }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.Person, contentDescription = "Perfil") },
-                    label = { Text("Perfil") },
+                    label = { Text("Perfil", style = TextStyle(color = textColor)) },
                     selected = false,
                     onClick = { navController.navigate("userProfile") }
                 )
@@ -100,7 +105,7 @@ fun inbox(navController: NavController, context: Context) {
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
+                .background(backgroundColor)
                 .fillMaxSize()
                 .padding(innerPadding)
                 .clickable {
@@ -122,11 +127,11 @@ fun inbox(navController: NavController, context: Context) {
                             searchActive = focusState.isFocused
                         },
                     shape = RoundedCornerShape(50.dp),
-                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                    textStyle = TextStyle(color = textColor),
                     label = {
                         Text(
                             text = "Search",
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = textColor,
                             modifier = Modifier.padding(horizontal = 10.dp)
                         )
                     },
@@ -147,7 +152,7 @@ fun inbox(navController: NavController, context: Context) {
                         .padding(vertical = 10.dp)
                         .align(Alignment.Start),
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = textColor,
                     fontSize = 22.sp,
                 )
 
@@ -170,13 +175,13 @@ fun inbox(navController: NavController, context: Context) {
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Criar novo e-mail"
+                    contentDescription = "Criar novo e-mail",
+                    tint = Color.White
                 )
             }
         }
     }
 }
-
 fun sampleReceivedEmails(): HashMap<ReceivedEmail, HashMap<String, List<String>>> {
     val emailMap = hashMapOf<ReceivedEmail, HashMap<String, List<String>>>()
 

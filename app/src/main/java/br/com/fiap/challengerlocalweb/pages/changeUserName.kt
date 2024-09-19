@@ -9,10 +9,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
+import androidx.compose.material3.TextFieldDefaults.outlinedTextFieldColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -32,6 +32,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun changeUserName(
     navController: NavController,
@@ -42,6 +43,9 @@ fun changeUserName(
     var passwordVisible by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
+    // Aplicando cores do tema do usuário
+    val backgroundColor = userThemeManager.backgroundColor.value
+    val textColor = userThemeManager.selectedTextColor.value
 
     val sessionManager = SessionManager.getInstance()
     val userId = sessionManager.fetchUserId() ?: ""
@@ -55,7 +59,7 @@ fun changeUserName(
     Scaffold { innerPadding ->
         Box(
             modifier = Modifier
-                .background(Color(0xFF253645))
+                .background(backgroundColor)
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
@@ -69,7 +73,7 @@ fun changeUserName(
                 Text(
                     text = "Alterar Nome",
                     fontSize = 24.sp,
-                    color = Color.White,
+                    color = textColor,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
@@ -78,12 +82,17 @@ fun changeUserName(
                 OutlinedTextField(
                     value = newUserName,
                     onValueChange = { newUserName = it },
-                    label = { Text("Novo Nome", color = Color.White) },
+                    label = { Text("Novo Nome", color = textColor) },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Next
                     ),
                     modifier = Modifier.fillMaxWidth(),
-                    textStyle = LocalTextStyle.current.copy(color = Color.White)
+                    textStyle = LocalTextStyle.current.copy(color = textColor),
+                    colors = outlinedTextFieldColors(
+                        focusedBorderColor = textColor,
+                        unfocusedBorderColor = textColor.copy(alpha = 0.5f),
+                        cursorColor = textColor
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -91,12 +100,12 @@ fun changeUserName(
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Senha", color = Color.White) },
+                    label = { Text("Senha", color = textColor) },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         val image = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(imageVector = image, contentDescription = "Toggle Password Visibility", tint = Color.White)
+                            Icon(imageVector = image, contentDescription = "Toggle Password Visibility", tint = textColor)
                         }
                     },
                     keyboardOptions = KeyboardOptions.Default.copy(
@@ -104,7 +113,12 @@ fun changeUserName(
                         imeAction = ImeAction.Done
                     ),
                     modifier = Modifier.fillMaxWidth(),
-                    textStyle = LocalTextStyle.current.copy(color = Color.White)
+                    textStyle = LocalTextStyle.current.copy(color = textColor),
+                    colors = outlinedTextFieldColors(
+                        focusedBorderColor = textColor,
+                        unfocusedBorderColor = textColor.copy(alpha = 0.5f),
+                        cursorColor = textColor
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -122,10 +136,8 @@ fun changeUserName(
                                     token = token
                                 ) { success, errorMessage ->
                                     if (success) {
-                                        // Atualiza o nome no SessionManager
                                         sessionManager.saveUserName(newUserName)
 
-                                        // Redireciona para o perfil
                                         navController.navigate("userProfile") {
                                             popUpTo("userProfile") { inclusive = true }
                                         }
@@ -139,9 +151,9 @@ fun changeUserName(
                             Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text(text = "Salvar Nome")
+                    Text(text = "Salvar Nome", color = backgroundColor)
                 }
             }
         }
@@ -157,7 +169,7 @@ suspend fun updateUserName(
     token: String,
     onResult: (Boolean, String?) -> Unit
 ) {
-    val url = "http://192.168.0.120:8080/api/user?id=$userId&email=$email"
+    val url = "http://10.0.2.2:8080/api/user?id=$userId&email=$email"
     val client = OkHttpClient()
 
     val json = JSONObject().apply {
