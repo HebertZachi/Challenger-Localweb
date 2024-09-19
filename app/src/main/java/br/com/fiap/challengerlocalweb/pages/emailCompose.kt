@@ -139,6 +139,7 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                     shape = RoundedCornerShape(8.dp),
                     textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
                     label = { Text("Para", color = MaterialTheme.colorScheme.onSurface) },
+                    placeholder = { Text("Digite os emails separados por ;", color = MaterialTheme.colorScheme.onSurface) },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
@@ -165,6 +166,7 @@ fun emailCompose(navController: NavController, sentEmailRepository: SentEmailRep
                     shape = RoundedCornerShape(8.dp),
                     textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
                     label = { Text("Cc", color = MaterialTheme.colorScheme.onSurface) },
+                    placeholder = { Text("Digite os emails separados por ;", color = MaterialTheme.colorScheme.onSurface) },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),

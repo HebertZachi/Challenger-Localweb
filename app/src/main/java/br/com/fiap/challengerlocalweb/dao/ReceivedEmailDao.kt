@@ -38,4 +38,3 @@ interface ReceivedEmailDao {
     @Query("DELETE FROM ReceivedEmailCcCrossRef WHERE receivedEmailId = :emailId")
     suspend fun deleteEmailCcCrossRefs(emailId: String)
 }
-

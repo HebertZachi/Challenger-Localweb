@@ -10,5 +10,10 @@ data class ReceivedEmail(
     val subject: String,
     val senderEmail: String,
     val body: String,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
+    val isRead: Boolean = false,
+    val isSent: Boolean = false,
+    val flaged: Boolean = false,
+    val type: String? = null,
+    val priority: String? = null
 )

@@ -1,6 +1,6 @@
 package br.com.fiap.challengerlocalweb.pages
 
-import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -23,14 +24,19 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import br.com.fiap.challengerlocalweb.model.ReceivedEmail
+import br.com.fiap.challengerlocalweb.SessionManager
+import br.com.fiap.challengerlocalweb.api.EmailApiService
+import br.com.fiap.challengerlocalweb.api.RetrofitFactory
 import br.com.fiap.challengerlocalweb.relations.ReceivedEmailWithUsers
 import br.com.fiap.challengerlocalweb.repository.ReceivedEmailRepository
+import br.com.fiap.challengerlocalweb.utils.mapToReceivedEmail
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
+import kotlinx.coroutines.withContext
 
 @Composable
-fun inbox(navController: NavController, context: Context) {
+fun inbox(navController: NavController) {
+    val context = LocalContext.current
     var searchQuery by remember { mutableStateOf("") }
     var searchActive by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
@@ -39,21 +45,33 @@ fun inbox(navController: NavController, context: Context) {
     val coroutineScope = rememberCoroutineScope()
     var emails by remember { mutableStateOf(listOf<ReceivedEmailWithUsers>()) }
 
+    val apiService = RetrofitFactory.getRetrofit(context).create(EmailApiService::class.java)
+
     LaunchedEffect(Unit) {
         coroutineScope.launch {
-            val existingEmails = receivedEmailRepository.getAllEmails()
-            if (existingEmails.isEmpty()) {
-                val sampleEmails = sampleReceivedEmails()
-
-                sampleEmails.forEach { (email, recipients) ->
-                    val receivers = recipients["receivers"] ?: emptyList()
-                    val cc = recipients["cc"] ?: emptyList()
-                    receivedEmailRepository.insertEmail(email, receivers, cc)
+            withContext(Dispatchers.IO) {
+                val existingEmails = receivedEmailRepository.getAllEmails()
+                if (existingEmails.isEmpty()) {
+                    val userId = SessionManager.getInstance().fetchUserId()
+                    val response = apiService.getAllReceivedEmails(userId).execute()
+                    Log.d("BACKEND", "Response code: ${response.code()}, message: ${response.message()}")
+                    if (response.isSuccessful) {
+                        response.body()?.let { pageResponse ->
+                            val fetchedEmails = pageResponse.content
+                            fetchedEmails?.forEach { emailDto ->
+                                val email = mapToReceivedEmail(emailDto)
+                                val receivers = emailDto.to
+                                val cc = emailDto.cc
+                                receivedEmailRepository.insertEmail(email, receivers, cc)
+                            }
+                            emails = receivedEmailRepository.getAllEmails()
+                        }
+                    } else {
+                        Log.e("BACKEND", "Error: ${response.code()} - ${response.message()}")
+                    }
+                } else {
+                    emails = existingEmails
                 }
-
-                emails = receivedEmailRepository.getAllEmails()
-            } else {
-                emails = existingEmails
             }
         }
     }
@@ -175,120 +193,4 @@ fun inbox(navController: NavController, context: Context) {
             }
         }
     }
-}
-
-fun sampleReceivedEmails(): HashMap<ReceivedEmail, HashMap<String, List<String>>> {
-    val emailMap = hashMapOf<ReceivedEmail, HashMap<String, List<String>>>()
-
-    emailMap[ReceivedEmail(
-        receivedEmailId = "email1",
-        subject = "Reunião de Projeto",
-        senderEmail = "paula.martins@example.com",
-        body = "Não se esqueça da reunião de projeto amanhã às 15h.",
-        createdAt = LocalDateTime.now().minusDays(1)
-    )] = hashMapOf(
-        "receivers" to listOf("joao.silva@example.com", "lucas.garcia@example.com"),
-        "cc" to listOf("adriana.oliveira@example.com")
-    )
-
-    emailMap[ReceivedEmail(
-        receivedEmailId = "email2",
-        subject = "Documentos Importantes",
-        senderEmail = "roberto.pereira@example.com",
-        body = "Os documentos importantes estão anexados para sua revisão.",
-        createdAt = LocalDateTime.now().minusDays(2)
-    )] = hashMapOf(
-        "receivers" to listOf("julia.souza@example.com"),
-        "cc" to listOf("sergio.lima@example.com")
-    )
-
-    emailMap[ReceivedEmail(
-        receivedEmailId = "email3",
-        subject = "Resumo Semanal",
-        senderEmail = "marta.nunes@example.com",
-        body = "Aqui está o resumo semanal das atividades.",
-        createdAt = LocalDateTime.now().minusDays(3)
-    )] = hashMapOf(
-        "receivers" to listOf("mario.santos@example.com", "carla.silva@example.com"),
-        "cc" to emptyList()
-    )
-
-    emailMap[ReceivedEmail(
-        receivedEmailId = "email4",
-        subject = "Alerta de Sistema",
-        senderEmail = "suporte.tecnico@example.com",
-        body = "Um alerta do sistema foi gerado e precisa da sua atenção.",
-        createdAt = LocalDateTime.now().minusDays(4)
-    )] = hashMapOf(
-        "receivers" to listOf("nelson.almeida@example.com"),
-        "cc" to listOf("lucas.garcia@example.com", "patricia.santos@example.com")
-    )
-
-    emailMap[ReceivedEmail(
-        receivedEmailId = "email5",
-        subject = "Convite para Webinar",
-        senderEmail = "eventos@example.com",
-        body = "Você está convidado para o nosso webinar na próxima semana.",
-        createdAt = LocalDateTime.now().minusDays(5)
-    )] = hashMapOf(
-        "receivers" to listOf("ana.santos@example.com", "marcio.martins@example.com"),
-        "cc" to listOf("daniela.morais@example.com")
-    )
-
-    emailMap[ReceivedEmail(
-        receivedEmailId = "email6",
-        subject = "Atualização de Política",
-        senderEmail = "rh@example.com",
-        body = "Leia a nova política de privacidade atualizada.",
-        createdAt = LocalDateTime.now().minusDays(6)
-    )] = hashMapOf(
-        "receivers" to listOf("fernando.pereira@example.com"),
-        "cc" to listOf("beatriz.lima@example.com", "roberto.pereira@example.com")
-    )
-
-    emailMap[ReceivedEmail(
-        receivedEmailId = "email7",
-        subject = "Oferta Especial",
-        senderEmail = "vendas@example.com",
-        body = "Aproveite a oferta especial disponível apenas para hoje.",
-        createdAt = LocalDateTime.now().minusDays(7)
-    )] = hashMapOf(
-        "receivers" to listOf("silvia.oliveira@example.com", "bruno.azevedo@example.com"),
-        "cc" to emptyList()
-    )
-
-    emailMap[ReceivedEmail(
-        receivedEmailId = "email8",
-        subject = "Solicitação de Feedback",
-        senderEmail = "gerencia@example.com",
-        body = "Por favor, forneça seu feedback sobre o último projeto.",
-        createdAt = LocalDateTime.now().minusDays(8)
-    )] = hashMapOf(
-        "receivers" to listOf("gabriela.souza@example.com", "carlos.martins@example.com"),
-        "cc" to listOf("patricia.costa@example.com")
-    )
-
-    emailMap[ReceivedEmail(
-        receivedEmailId = "email9",
-        subject = "Novo Relatório Disponível",
-        senderEmail = "financeiro@example.com",
-        body = "O novo relatório financeiro está disponível para download.",
-        createdAt = LocalDateTime.now().minusDays(9)
-    )] = hashMapOf(
-        "receivers" to listOf("rafael.dias@example.com"),
-        "cc" to listOf("julia.oliveira@example.com", "eduardo.lima@example.com")
-    )
-
-    emailMap[ReceivedEmail(
-        receivedEmailId = "email10",
-        subject = "Confirmação de Reunião",
-        senderEmail = "agenda@example.com",
-        body = "Sua reunião foi confirmada para amanhã às 14h.",
-        createdAt = LocalDateTime.now().minusDays(10)
-    )] = hashMapOf(
-        "receivers" to listOf("laura.souza@example.com", "marcio.lopes@example.com"),
-        "cc" to emptyList()
-    )
-
-    return emailMap
 }

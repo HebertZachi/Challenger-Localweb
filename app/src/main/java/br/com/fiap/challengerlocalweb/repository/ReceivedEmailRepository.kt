@@ -6,24 +6,29 @@ import br.com.fiap.challengerlocalweb.model.ReceivedEmail
 import br.com.fiap.challengerlocalweb.model.ReceivedEmailCcCrossRef
 import br.com.fiap.challengerlocalweb.model.ReceivedEmailReceiverCrossRef
 import br.com.fiap.challengerlocalweb.relations.ReceivedEmailWithUsers
+import br.com.fiap.challengerlocalweb.viewmodel.EmailReturnReceivedDto
 
 class ReceivedEmailRepository(context: Context) {
 
     private val db = AppDatabase.getDatabase(context).receivedEmailDao()
 
-    suspend fun insertEmail(email: ReceivedEmail, receivers: List<String>, cc: List<String>) {
-        db.insertEmail(email)
 
-        val receiverCrossRefs = receivers.map { recipientEmail ->
+
+    suspend fun insertEmail(email: ReceivedEmail?, receivers: List<String?>, cc: List<String?>) {
+        if (email == null) {
+            throw IllegalArgumentException("ReceivedEmail must not be null")
+        }
+        db.insertEmail(email)
+        val receiverCrossRefs = receivers.filterNotNull().map { recipientEmail ->
             ReceivedEmailReceiverCrossRef(receivedEmailId = email.receivedEmailId, userEmailId = recipientEmail)
         }
         db.insertEmailReceiversCrossRef(receiverCrossRefs)
-
-        val ccCrossRefs = cc.map { recipientEmail ->
+        val ccCrossRefs = cc.filterNotNull().map { recipientEmail ->
             ReceivedEmailCcCrossRef(receivedEmailId = email.receivedEmailId, userEmailId = recipientEmail)
         }
         db.insertEmailCcCrossRef(ccCrossRefs)
     }
+
 
     suspend fun getAllEmails(): List<ReceivedEmailWithUsers> {
         return db.getAllEmails()

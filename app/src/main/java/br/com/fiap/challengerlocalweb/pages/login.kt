@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -14,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -49,6 +51,7 @@ fun login(navController: NavController, context: Context) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val logoSize = (screenWidth.coerceAtMost(screenHeight) * 0.5f)
+    val focusManager = LocalFocusManager.current
 
     Scaffold { innerPadding ->
         Box(
@@ -56,6 +59,9 @@ fun login(navController: NavController, context: Context) {
                 .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
                 .padding(innerPadding)
+                .clickable {
+                    focusManager.clearFocus()
+                }
         ) {
             Column(
                 modifier = Modifier
