@@ -53,7 +53,7 @@ fun receivedEmailDetail(navController: NavController, emailId: String?, context:
                     selected = navController.currentDestination?.route == "sentEmails",
                     onClick = {
                         if (navController.currentDestination?.route != "sentEmails") {
-                            navController.navigate("sentEmails")
+                            navController.navigate("sentItems")
                         }
                     }
                 )

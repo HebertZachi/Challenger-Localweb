@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
                         composable(route = "start") { startScreen(navController = navController) }
                         composable(route = "signup") { signup(navController = navController) }
                         composable(route = "signin") { login(navController = navController, context = context) }
-                        composable(route = "inbox") { inbox(navController = navController, context = context) }
+                        composable(route = "inbox") { inbox(navController = navController) }
                         composable("receivedEmailDetail/{emailId}") { backStackEntry ->
                             val emailId = backStackEntry.arguments?.getString("emailId")
                             if (emailId != null) {
